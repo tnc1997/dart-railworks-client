@@ -4,8 +4,9 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
+import 'package:xml/xml_events.dart';
 
-class BinToObj {
+class BinToXml {
   static const _prelude = [0x53, 0x45, 0x52, 0x5A];
 
   final StreamIterator<int> _iterator;
@@ -15,7 +16,7 @@ class BinToObj {
   var _savedTokenListIndex = 0;
   Node? _lastNode = null;
 
-  BinToObj(
+  BinToXml(
     Stream<List<int>> stream,
   ) : _iterator = StreamIterator(
           stream.expand(
@@ -25,7 +26,7 @@ class BinToObj {
           ),
         );
 
-  Stream<Node> run() async* {
+  Stream<List<XmlEvent>> run() async* {
     await _iterator.moveNext();
 
     await _validatePrelude();
@@ -51,7 +52,7 @@ class BinToObj {
             final node = await _processFF41Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -64,7 +65,7 @@ class BinToObj {
             final node = await _processFF42Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -72,17 +73,26 @@ class BinToObj {
 
             break;
           case 0x43:
-            await _iterator.readBytes(6);
+            await _iterator.moveNext();
 
-            if (_lastNode != null) {
-              if (_lastNode is! FF50Node) {
-                throw Exception('Invalid last node');
-              }
+            await _iterator.readBytes(5);
 
-              _lastNode = (_lastNode as FF50Node).copyWith(
-                children: 1,
-              );
-            }
+            yield [
+              XmlDeclarationEvent(
+                [
+                  XmlEventAttribute(
+                    'version',
+                    '1.0',
+                    XmlAttributeType.DOUBLE_QUOTE,
+                  ),
+                  XmlEventAttribute(
+                    'encoding',
+                    'utf-8',
+                    XmlAttributeType.DOUBLE_QUOTE,
+                  ),
+                ],
+              ),
+            ];
 
             break;
           case 0x4E:
@@ -91,7 +101,7 @@ class BinToObj {
             final node = FF4ENode();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -104,7 +114,7 @@ class BinToObj {
             final node = await _processFF50Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -117,7 +127,7 @@ class BinToObj {
             final node = await _processFF52Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -130,7 +140,7 @@ class BinToObj {
             final node = await _processFF56Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -143,7 +153,7 @@ class BinToObj {
             final node = await _processFF70Node();
 
             if (_lastNode != null) {
-              yield _lastNode!;
+              yield _getXmlEvents(_lastNode!);
             }
 
             _lastNode = node;
@@ -159,7 +169,7 @@ class BinToObj {
         final node = await _processSavedLine();
 
         if (_lastNode != null) {
-          yield _lastNode!;
+          yield _getXmlEvents(_lastNode!);
         }
 
         _lastNode = node;
@@ -169,11 +179,11 @@ class BinToObj {
     }
 
     if (_lastNode != null) {
-      yield _lastNode!;
+      yield _getXmlEvents(_lastNode!);
     }
   }
 
-  int _getUtf8CharacterSize(
+  static int _getUtf8CharacterSize(
     int byte,
   ) {
     if (byte & 0x80 == 0x00) {
@@ -186,6 +196,176 @@ class BinToObj {
       return 4;
     } else {
       throw Exception('Invalid UTF-8 character');
+    }
+  }
+
+  static List<XmlEvent> _getXmlEvents(
+    Node node,
+  ) {
+    if (node is FF41Node) {
+      return [
+        XmlStartElementEvent(
+          node.name,
+          <XmlEventAttribute>[
+            XmlEventAttribute(
+              'd:numElements',
+              node.numElements.toString(),
+              XmlAttributeType.DOUBLE_QUOTE,
+            ),
+            XmlEventAttribute(
+              'd:elementType',
+              node.elementType,
+              XmlAttributeType.DOUBLE_QUOTE,
+            ),
+            if (node.elementType == DataTypes.sfloat32)
+              XmlEventAttribute(
+                'd:precision',
+                'string',
+                XmlAttributeType.DOUBLE_QUOTE,
+              ),
+          ],
+          false,
+        ),
+        if (node.elementType == DataTypes.sfloat32)
+          XmlTextEvent(
+            node.values.cast<num>().map(
+              (value) {
+                return value.toStringAsFixed(7);
+              },
+            ).join(' '),
+          )
+        else
+          XmlTextEvent(
+            node.values.map(
+              (value) {
+                return value.toString();
+              },
+            ).join(' '),
+          ),
+        XmlEndElementEvent(
+          node.name,
+        ),
+      ];
+    } else if (node is FF42Node) {
+      return [
+        XmlStartElementEvent(
+          'd:blob',
+          [
+            XmlEventAttribute(
+              'd:size',
+              node.size.toString(),
+              XmlAttributeType.DOUBLE_QUOTE,
+            ),
+          ],
+          false,
+        ),
+        XmlTextEvent(
+          hex.encode(node.data).slices(16).slices(4).map(
+            (values) {
+              return values.join(' ');
+            },
+          ).join('\n'),
+        ),
+        XmlEndElementEvent(
+          'd:blob',
+        ),
+      ];
+    } else if (node is FF4ENode) {
+      return [
+        XmlStartElementEvent(
+          'd:nil',
+          [],
+          true,
+        ),
+      ];
+    } else if (node is FF50Node) {
+      return [
+        XmlStartElementEvent(
+          node.name,
+          [
+            if (node.id != 0)
+              XmlEventAttribute(
+                'd:id',
+                node.id.toString(),
+                XmlAttributeType.DOUBLE_QUOTE,
+              ),
+          ],
+          false,
+        ),
+      ];
+    } else if (node is FF52Node) {
+      return [
+        XmlStartElementEvent(
+          node.name,
+          [
+            XmlEventAttribute(
+              'd:type',
+              'ref',
+              XmlAttributeType.DOUBLE_QUOTE,
+            ),
+          ],
+          false,
+        ),
+        XmlTextEvent(
+          node.value.toString(),
+        ),
+        XmlEndElementEvent(
+          node.name,
+        ),
+      ];
+    } else if (node is FF56Node) {
+      return [
+        XmlStartElementEvent(
+          node.name,
+          [
+            XmlEventAttribute(
+              'd:type',
+              node.type,
+              XmlAttributeType.DOUBLE_QUOTE,
+            ),
+            if (node.type == DataTypes.sfloat32)
+              XmlEventAttribute(
+                'd:alt_encoding',
+                hex.encode(
+                  (ByteData(8)..setFloat64(0, node.value, Endian.little))
+                      .buffer
+                      .asUint8List(),
+                ),
+                XmlAttributeType.DOUBLE_QUOTE,
+              ),
+            if (node.type == DataTypes.sfloat32)
+              XmlEventAttribute(
+                'd:precision',
+                'string',
+                XmlAttributeType.DOUBLE_QUOTE,
+              ),
+          ],
+          false,
+        ),
+        if (node.type == DataTypes.bool)
+          XmlTextEvent(
+            node.value == true ? '1' : '0',
+          )
+        else if (node.type == DataTypes.sfloat32)
+          XmlTextEvent(
+            node.value.toStringAsPrecision(6),
+          )
+        else
+          XmlTextEvent(
+            node.value.toString(),
+          ),
+        XmlEndElementEvent(
+          node.name,
+        ),
+      ];
+    } else if (node is FF70Node) {
+      return [
+        XmlEndElementEvent(
+          node.name,
+        ),
+      ];
+    } else {
+      throw Exception('Invalid node type');
     }
   }
 
@@ -394,8 +574,6 @@ class BinToObj {
         return await _identifier(StringContext.value);
       case DataTypes.sfloat32:
         return await _iterator.readFloat32(Endian.little);
-      case DataTypes.sfloat64:
-        return await _iterator.readFloat64(Endian.little);
       case DataTypes.sint8:
         return await _iterator.readInt8();
       case DataTypes.sint16:
@@ -435,9 +613,6 @@ class DataTypes {
 
   /// Swapped IEEE 32-bit floating point.
   static const sfloat32 = 'sFloat32';
-
-  /// Swapped IEEE 64-bit floating point.
-  static const sfloat64 = 'sFloat64';
 
   /// Swapped IEEE 8-bit signed integer.
   static const sint8 = 'sInt8';
@@ -495,7 +670,6 @@ class FF41Node extends Node {
   String toString() {
     switch (elementType) {
       case DataTypes.sfloat32:
-      case DataTypes.sfloat64:
         return '<$name d:numElements="$numElements" d:elementType="$elementType" d:precision="string">${values.map((value) => (value as num).toStringAsFixed(7)).join(' ')}</$name>';
       default:
         return '<$name d:numElements="$numElements" d:elementType="$elementType">${values.map((value) => value.toString()).join(' ')}</$name>';
@@ -624,7 +798,6 @@ class FF56Node extends Node {
       case DataTypes.bool:
         return '<$name d:type="$type">${value == true ? '1' : '0'}</$name>';
       case DataTypes.sfloat32:
-      case DataTypes.sfloat64:
         return '<$name d:type="$type" d:alt_encoding="${hex.encode((ByteData(8)..setFloat64(0, value, Endian.little)).buffer.asUint8List())}" d:precision="string">${(value as num).toStringAsPrecision(6)}</$name>';
       default:
         return '<$name d:type="$type">${value.toString()}</$name>';
@@ -711,14 +884,6 @@ extension on StreamIterator<int> {
     final bytes = await readBytes(4);
 
     return bytes.buffer.asByteData().getFloat32(0, endian);
-  }
-
-  Future<double> readFloat64([
-    Endian endian = Endian.big,
-  ]) async {
-    final bytes = await readBytes(8);
-
-    return bytes.buffer.asByteData().getFloat64(0, endian);
   }
 
   Future<int> readInt8() async {
