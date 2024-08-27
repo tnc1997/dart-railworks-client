@@ -10,3 +10,4 @@ dependencies:
   collection: ^1.15.0
   convert: ^3.0.0
   path: ^1.8.0
+  xml: ">=5.0.0 <7.0.0"
