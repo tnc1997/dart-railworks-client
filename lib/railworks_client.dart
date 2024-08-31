@@ -836,19 +836,29 @@ enum StringContext {
 
 class TextureFormats {
   /// DXGI_FORMAT_BC1_UNORM
-  static const dxt1 = 'HC_IMAGE_FORMAT_COMPRESSED';
+  ///
+  /// D3DFMT_DXT1
+  static const bc1 = 'HC_IMAGE_FORMAT_COMPRESSED';
 
   /// DXGI_FORMAT_BC2_UNORM
-  static const dxt3 = 'HC_IMAGE_FORMAT_COMPRESSED_EXPL_ALPHA';
+  ///
+  /// D3DFMT_DXT3
+  static const bc2 = 'HC_IMAGE_FORMAT_COMPRESSED_EXPL_ALPHA';
 
   /// DXGI_FORMAT_BC3_UNORM
-  static const dxt5 = 'HC_IMAGE_FORMAT_COMPRESSED_INTERP_ALPHA';
+  ///
+  /// D3DFMT_DXT5
+  static const bc3 = 'HC_IMAGE_FORMAT_COMPRESSED_INTERP_ALPHA';
 
-  /// DXGI_FORMAT_R8G8B8A8_UNORM
-  static const rgb = 'HC_IMAGE_FORMAT_COL888';
+  /// DXGI_FORMAT_B8G8R8A8_UNORM
+  ///
+  /// D3DFMT_A8R8G8B8
+  static const bgra = 'HC_IMAGE_FORMAT_COLA8888';
 
-  /// DXGI_FORMAT_R8G8B8A8_UNORM
-  static const rgba = 'HC_IMAGE_FORMAT_COLA8888';
+  /// DXGI_FORMAT_B8G8R8X8_UNORM
+  ///
+  /// D3DFMT_X8R8G8B8
+  static const bgrx = 'HC_IMAGE_FORMAT_COL888';
 }
 
 extension on StreamIterator<int> {
