@@ -7,7 +7,7 @@ import 'package:convert/convert.dart';
 import 'package:xml/xml_events.dart';
 
 class BinToXml {
-  static const _prelude = [0x53, 0x45, 0x52, 0x5A];
+  static const _prelude = [0x53, 0x45, 0x52, 0x5A, 0x00, 0x00, 0x01, 0x00];
 
   final StreamIterator<int> _iterator;
   var _line = 0;
@@ -30,8 +30,6 @@ class BinToXml {
     await _iterator.moveNext();
 
     await _validatePrelude();
-
-    await _iterator.readUint32(Endian.little);
 
     while (true) {
       final int current;
