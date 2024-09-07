@@ -13,7 +13,6 @@ class DdsToBytesConverter extends Converter<Dds, List<int>> {
     Dds input,
   ) {
     final header = input.header;
-    final header10 = input.header10;
     final pixelFormat = header.pixelFormat;
 
     final bytes = Uint8List(
@@ -48,9 +47,11 @@ class DdsToBytesConverter extends Converter<Dds, List<int>> {
     data.setUint32(0x78, header.caps4, Endian.little);
 
     if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
+      final header10 = input.header10;
       if (header10 == null) {
         throw Exception('header10 must not be null if four cc is DX10');
       }
+
       data.setUint32(0x80, header10.dxgiFormat, Endian.little);
       data.setUint32(0x84, header10.resourceDimension, Endian.little);
       data.setUint32(0x88, header10.miscFlag, Endian.little);
@@ -59,5 +60,83 @@ class DdsToBytesConverter extends Converter<Dds, List<int>> {
     }
 
     return bytes..setAll(bytes.length - input.data.length, input.data);
+  }
+
+  @override
+  Sink<Dds> startChunkedConversion(
+    Sink<List<int>> sink,
+  ) {
+    return _DdsToBytesConverterSink(
+      sink: sink,
+    );
+  }
+}
+
+class _DdsToBytesConverterSink implements Sink<Dds> {
+  final Sink<List<int>> _sink;
+
+  _DdsToBytesConverterSink({
+    required Sink<List<int>> sink,
+  }) : _sink = sink;
+
+  @override
+  void add(
+    Dds data,
+  ) {
+    _add(data.magic);
+
+    _add(data.header.size);
+    _add(data.header.flags);
+    _add(data.header.height);
+    _add(data.header.width);
+    _add(data.header.pitchOrLinearSize);
+    _add(data.header.depth ?? 0x0);
+    _add(data.header.mipMapCount ?? 0x0);
+
+    _sink.add(Uint8List(4 * 11));
+
+    _add(data.header.pixelFormat.size);
+    _add(data.header.pixelFormat.flags);
+    _add(data.header.pixelFormat.fourCc ?? 0x0);
+    _add(data.header.pixelFormat.rgbBitCount ?? 0x0);
+    _add(data.header.pixelFormat.rBitMask ?? 0x0);
+    _add(data.header.pixelFormat.gBitMask ?? 0x0);
+    _add(data.header.pixelFormat.bBitMask ?? 0x0);
+    _add(data.header.pixelFormat.aBitMask ?? 0x0);
+
+    _add(data.header.caps);
+    _add(data.header.caps2);
+    _add(data.header.caps3);
+    _add(data.header.caps4);
+
+    _sink.add(Uint8List(4 * 1));
+
+    if (data.header.pixelFormat.fourCc == DdsD3dFormats.dx10) {
+      final header10 = data.header10;
+      if (header10 == null) {
+        throw Exception('header10 must not be null if four cc is DX10');
+      }
+
+      _add(header10.dxgiFormat);
+      _add(header10.resourceDimension);
+      _add(header10.miscFlag);
+      _add(header10.arraySize);
+      _add(header10.miscFlags2);
+    }
+
+    _sink.add(Uint8List.fromList(data.data));
+  }
+
+  @override
+  void close() {
+    _sink.close();
+  }
+
+  void _add(
+    int data,
+  ) {
+    final bytes = Uint8List(4);
+    bytes.buffer.asByteData().setUint32(0, data, Endian.little);
+    _sink.add(bytes);
   }
 }
