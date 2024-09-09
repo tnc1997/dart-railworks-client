@@ -9,10 +9,15 @@ part of 'tgpcdx_chc_texture.dart';
 void _$TgpcdxChcTextureBuildXmlChildren(
     TgpcdxChcTexture instance, XmlBuilder builder,
     {Map<String, String> namespaces = const {}}) {
-  final data = instance.data;
-  final dataSerialized = data;
-  builder.element('Data', isSelfClosing: false, nest: () {
-    dataSerialized.buildXmlChildren(builder, namespaces: namespaces);
+  final id = instance.id;
+  final idSerialized = id.toString();
+  builder.attribute('id', idSerialized,
+      namespace: 'http://www.kuju.com/TnT/2003/Delta');
+  final width = instance.width;
+  final widthSerialized = width;
+  builder.element('Width', isSelfClosing: false, nest: () {
+    const TgpcdxSuint32TypedXmlConverter()
+        .buildXmlChildren(widthSerialized, builder, namespaces: namespaces);
   });
   final height = instance.height;
   final heightSerialized = height;
@@ -20,21 +25,16 @@ void _$TgpcdxChcTextureBuildXmlChildren(
     const TgpcdxSuint32TypedXmlConverter()
         .buildXmlChildren(heightSerialized, builder, namespaces: namespaces);
   });
-  final id = instance.id;
-  final idSerialized = id.toString();
-  builder.attribute('id', idSerialized,
-      namespace: 'http://www.kuju.com/TnT/2003/Delta');
   final name = instance.name;
   final nameSerialized = name;
   builder.element('Name', isSelfClosing: false, nest: () {
     const TgpcdxStringTypedXmlConverter()
         .buildXmlChildren(nameSerialized, builder, namespaces: namespaces);
   });
-  final width = instance.width;
-  final widthSerialized = width;
-  builder.element('Width', isSelfClosing: false, nest: () {
-    const TgpcdxSuint32TypedXmlConverter()
-        .buildXmlChildren(widthSerialized, builder, namespaces: namespaces);
+  final data = instance.data;
+  final dataSerialized = data;
+  builder.element('Data', isSelfClosing: false, nest: () {
+    dataSerialized.buildXmlChildren(builder, namespaces: namespaces);
   });
 }
 
@@ -47,18 +47,18 @@ void _$TgpcdxChcTextureBuildXmlElement(
 }
 
 TgpcdxChcTexture _$TgpcdxChcTextureFromXmlElement(XmlElement element) {
-  final data = element.getElement('Data')!;
-  final height = element.getElement('Height')!;
   final id = element.getAttribute('id',
       namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
-  final name = element.getElement('Name')!;
   final width = element.getElement('Width')!;
+  final height = element.getElement('Height')!;
+  final name = element.getElement('Name')!;
+  final data = element.getElement('Data')!;
   return TgpcdxChcTexture(
-      data: TgpcdxData.fromXmlElement(data),
-      height: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(height),
       id: int.parse(id),
+      width: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(width),
+      height: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(height),
       name: const TgpcdxStringTypedXmlConverter().fromXmlElement(name),
-      width: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(width));
+      data: TgpcdxData.fromXmlElement(data));
 }
 
 List<XmlAttribute> _$TgpcdxChcTextureToXmlAttributes(TgpcdxChcTexture instance,
@@ -76,14 +76,16 @@ List<XmlAttribute> _$TgpcdxChcTextureToXmlAttributes(TgpcdxChcTexture instance,
 List<XmlNode> _$TgpcdxChcTextureToXmlChildren(TgpcdxChcTexture instance,
     {Map<String, String?> namespaces = const {}}) {
   final children = <XmlNode>[];
-  final data = instance.data;
-  final dataSerialized = data;
-  final dataConstructed = XmlElement(
-      XmlName('Data'),
-      dataSerialized.toXmlAttributes(namespaces: namespaces),
-      dataSerialized.toXmlChildren(namespaces: namespaces),
+  final width = instance.width;
+  final widthSerialized = width;
+  final widthConstructed = XmlElement(
+      XmlName('Width'),
+      const TgpcdxSuint32TypedXmlConverter()
+          .toXmlAttributes(widthSerialized, namespaces: namespaces),
+      const TgpcdxSuint32TypedXmlConverter()
+          .toXmlChildren(widthSerialized, namespaces: namespaces),
       false);
-  children.add(dataConstructed);
+  children.add(widthConstructed);
   final height = instance.height;
   final heightSerialized = height;
   final heightConstructed = XmlElement(
@@ -104,16 +106,14 @@ List<XmlNode> _$TgpcdxChcTextureToXmlChildren(TgpcdxChcTexture instance,
           .toXmlChildren(nameSerialized, namespaces: namespaces),
       false);
   children.add(nameConstructed);
-  final width = instance.width;
-  final widthSerialized = width;
-  final widthConstructed = XmlElement(
-      XmlName('Width'),
-      const TgpcdxSuint32TypedXmlConverter()
-          .toXmlAttributes(widthSerialized, namespaces: namespaces),
-      const TgpcdxSuint32TypedXmlConverter()
-          .toXmlChildren(widthSerialized, namespaces: namespaces),
+  final data = instance.data;
+  final dataSerialized = data;
+  final dataConstructed = XmlElement(
+      XmlName('Data'),
+      dataSerialized.toXmlAttributes(namespaces: namespaces),
+      dataSerialized.toXmlChildren(namespaces: namespaces),
       false);
-  children.add(widthConstructed);
+  children.add(dataConstructed);
   return children;
 }
 

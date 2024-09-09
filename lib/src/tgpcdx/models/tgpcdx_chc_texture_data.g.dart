@@ -21,7 +21,8 @@ void _$TgpcdxChcTextureDataBuildXmlChildren(
   final palette = instance.palette;
   final paletteSerialized = palette;
   builder.element('Palette', isSelfClosing: false, nest: () {
-    paletteSerialized.buildXmlChildren(builder, namespaces: namespaces);
+    const TgpcdxPaletteXmlConverter()
+        .buildXmlChildren(paletteSerialized, builder, namespaces: namespaces);
   });
 }
 
@@ -37,11 +38,13 @@ TgpcdxChcTextureData _$TgpcdxChcTextureDataFromXmlElement(XmlElement element) {
   final id = element.getAttribute('id',
       namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
   final mip = element.getElement('Mip')!;
-  final palette = element.getElement('Palette')!;
+  final palette = element.getElement('Palette');
   return TgpcdxChcTextureData(
       id: int.parse(id),
       mip: TgpcdxMip.fromXmlElement(mip),
-      palette: TgpcdxPalette.fromXmlElement(palette));
+      palette: palette != null
+          ? const TgpcdxPaletteXmlConverter().fromXmlElement(palette)
+          : null);
 }
 
 List<XmlAttribute> _$TgpcdxChcTextureDataToXmlAttributes(
@@ -72,8 +75,10 @@ List<XmlNode> _$TgpcdxChcTextureDataToXmlChildren(TgpcdxChcTextureData instance,
   final paletteSerialized = palette;
   final paletteConstructed = XmlElement(
       XmlName('Palette'),
-      paletteSerialized.toXmlAttributes(namespaces: namespaces),
-      paletteSerialized.toXmlChildren(namespaces: namespaces),
+      const TgpcdxPaletteXmlConverter()
+          .toXmlAttributes(paletteSerialized, namespaces: namespaces),
+      const TgpcdxPaletteXmlConverter()
+          .toXmlChildren(paletteSerialized, namespaces: namespaces),
       false);
   children.add(paletteConstructed);
   return children;

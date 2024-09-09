@@ -9,6 +9,10 @@ part of 'tgpcdx_chc_texture_group.dart';
 void _$TgpcdxChcTextureGroupBuildXmlChildren(
     TgpcdxChcTextureGroup instance, XmlBuilder builder,
     {Map<String, String> namespaces = const {}}) {
+  final version = instance.version;
+  final versionSerialized = version;
+  builder.attribute('version', versionSerialized,
+      namespace: 'http://www.kuju.com/TnT/2003/Delta');
   final id = instance.id;
   final idSerialized = id.toString();
   builder.attribute('id', idSerialized,
@@ -18,10 +22,6 @@ void _$TgpcdxChcTextureGroupBuildXmlChildren(
   builder.element('Texture', isSelfClosing: false, nest: () {
     textureSerialized.buildXmlChildren(builder, namespaces: namespaces);
   });
-  final version = instance.version;
-  final versionSerialized = version;
-  builder.attribute('version', versionSerialized,
-      namespace: 'http://www.kuju.com/TnT/2003/Delta');
 }
 
 void _$TgpcdxChcTextureGroupBuildXmlElement(
@@ -34,33 +34,33 @@ void _$TgpcdxChcTextureGroupBuildXmlElement(
 
 TgpcdxChcTextureGroup _$TgpcdxChcTextureGroupFromXmlElement(
     XmlElement element) {
+  final version = element.getAttribute('version',
+      namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
   final id = element.getAttribute('id',
       namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
   final texture = element.getElement('Texture')!;
-  final version = element.getAttribute('version',
-      namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
   return TgpcdxChcTextureGroup(
+      version: version,
       id: int.parse(id),
-      texture: TgpcdxTexture.fromXmlElement(texture),
-      version: version);
+      texture: TgpcdxTexture.fromXmlElement(texture));
 }
 
 List<XmlAttribute> _$TgpcdxChcTextureGroupToXmlAttributes(
     TgpcdxChcTextureGroup instance,
     {Map<String, String?> namespaces = const {}}) {
   final attributes = <XmlAttribute>[];
-  final id = instance.id;
-  final idSerialized = id.toString();
-  final idConstructed = XmlAttribute(
-      XmlName('id', namespaces['http://www.kuju.com/TnT/2003/Delta']),
-      idSerialized);
-  attributes.add(idConstructed);
   final version = instance.version;
   final versionSerialized = version;
   final versionConstructed = XmlAttribute(
       XmlName('version', namespaces['http://www.kuju.com/TnT/2003/Delta']),
       versionSerialized);
   attributes.add(versionConstructed);
+  final id = instance.id;
+  final idSerialized = id.toString();
+  final idConstructed = XmlAttribute(
+      XmlName('id', namespaces['http://www.kuju.com/TnT/2003/Delta']),
+      idSerialized);
+  attributes.add(idConstructed);
   return attributes;
 }
 

@@ -8,9 +8,9 @@ part of 'tgpcdx_mip.dart';
 
 void _$TgpcdxMipBuildXmlChildren(TgpcdxMip instance, XmlBuilder builder,
     {Map<String, String> namespaces = const {}}) {
-  final chcImageDx = instance.chcImageDxs;
-  final chcImageDxSerialized = chcImageDx;
-  for (final value in chcImageDxSerialized) {
+  final chcImageDxs = instance.chcImageDxs;
+  final chcImageDxsSerialized = chcImageDxs;
+  for (final value in chcImageDxsSerialized) {
     builder.element('cHcImageDx', isSelfClosing: false, nest: () {
       value.buildXmlChildren(builder, namespaces: namespaces);
     });
@@ -25,10 +25,10 @@ void _$TgpcdxMipBuildXmlElement(TgpcdxMip instance, XmlBuilder builder,
 }
 
 TgpcdxMip _$TgpcdxMipFromXmlElement(XmlElement element) {
-  final chcImageDx = element.getElements('cHcImageDx')!;
+  final chcImageDxs = element.getElements('cHcImageDx')!;
   return TgpcdxMip(
       chcImageDxs:
-          chcImageDx.map((e) => TgpcdxChcImageDx.fromXmlElement(e)).toList());
+          chcImageDxs.map((e) => TgpcdxChcImageDx.fromXmlElement(e)).toList());
 }
 
 List<XmlAttribute> _$TgpcdxMipToXmlAttributes(TgpcdxMip instance,
@@ -40,14 +40,14 @@ List<XmlAttribute> _$TgpcdxMipToXmlAttributes(TgpcdxMip instance,
 List<XmlNode> _$TgpcdxMipToXmlChildren(TgpcdxMip instance,
     {Map<String, String?> namespaces = const {}}) {
   final children = <XmlNode>[];
-  final chcImageDx = instance.chcImageDxs;
-  final chcImageDxSerialized = chcImageDx;
-  final chcImageDxConstructed = chcImageDxSerialized.map((e) => XmlElement(
+  final chcImageDxs = instance.chcImageDxs;
+  final chcImageDxsSerialized = chcImageDxs;
+  final chcImageDxsConstructed = chcImageDxsSerialized.map((e) => XmlElement(
       XmlName('cHcImageDx'),
       e.toXmlAttributes(namespaces: namespaces),
       e.toXmlChildren(namespaces: namespaces),
       false));
-  children.addAll(chcImageDxConstructed);
+  children.addAll(chcImageDxsConstructed);
   return children;
 }
 

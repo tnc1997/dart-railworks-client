@@ -1,8 +1,8 @@
 import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
+import '../xml_converters/tgpcdx_palette_xml_converter.dart';
 import 'tgpcdx_mip.dart';
-import 'tgpcdx_palette.dart';
 
 part 'tgpcdx_chc_texture_data.g.dart';
 
@@ -23,11 +23,12 @@ class TgpcdxChcTextureData {
   )
   final TgpcdxMip mip;
 
+  @TgpcdxPaletteXmlConverter()
   @annotation.XmlElement(
     name: 'Palette',
     isSelfClosing: false,
   )
-  final TgpcdxPalette palette;
+  final dynamic palette;
 
   const TgpcdxChcTextureData({
     required this.id,
