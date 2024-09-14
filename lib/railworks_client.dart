@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
+import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
 class BinToXml {
@@ -666,12 +667,54 @@ class FF41Node extends Node {
 
   @override
   String toString() {
-    switch (elementType) {
-      case DataTypes.sfloat32:
-        return '<$name d:numElements="$numElements" d:elementType="$elementType" d:precision="string">${values.map((value) => (value as num).toStringAsFixed(7)).join(' ')}</$name>';
-      default:
-        return '<$name d:numElements="$numElements" d:elementType="$elementType">${values.map((value) => value.toString()).join(' ')}</$name>';
-    }
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        name,
+      ),
+      [
+        XmlAttribute(
+          XmlName(
+            'numElements',
+            'd',
+          ),
+          numElements.toString(),
+        ),
+        XmlAttribute(
+          XmlName(
+            'elementType',
+            'd',
+          ),
+          elementType,
+        ),
+        if (elementType == RailWorksDataTypes.sfloat32)
+          XmlAttribute(
+            XmlName(
+              'precision',
+              'd',
+            ),
+            'string',
+          ),
+      ],
+      [
+        if (elementType == RailWorksDataTypes.sfloat32)
+          XmlText(
+            values
+                .cast<num>()
+                .map((value) => value.toStringAsFixed(7))
+                .join(' '),
+          )
+        else
+          XmlText(
+            values.map((value) => value.toString()).join(' '),
+          ),
+      ],
+      false,
+    );
   }
 }
 
@@ -696,7 +739,37 @@ class FF42Node extends Node {
 
   @override
   String toString() {
-    return '<d:blob d:size="$size">${hex.encode(data).slices(16).slices(4).map((values) => values.join(' ')).join('\n')}</d:blob>';
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        'blob',
+        'd',
+      ),
+      [
+        XmlAttribute(
+          XmlName(
+            'size',
+            'd',
+          ),
+          size.toString(),
+        ),
+      ],
+      [
+        XmlText(
+          hex
+              .encode(data)
+              .slices(16)
+              .slices(4)
+              .map((values) => values.join(' '))
+              .join('\n'),
+        ),
+      ],
+      false,
+    );
   }
 }
 
@@ -705,7 +778,20 @@ class FF4ENode extends Node {
 
   @override
   String toString() {
-    return '<d:nil/>';
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        'nil',
+        'd',
+      ),
+      [],
+      [],
+      true,
+    );
   }
 }
 
@@ -734,11 +820,28 @@ class FF50Node extends Node {
 
   @override
   String toString() {
-    if (id != 0) {
-      return '<$name d:id="$id">';
-    } else {
-      return '<$name>';
-    }
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        name,
+      ),
+      [
+        if (id != 0)
+          XmlAttribute(
+            XmlName(
+              'id',
+              'd',
+            ),
+            id.toString(),
+          ),
+      ],
+      [],
+      false,
+    );
   }
 }
 
@@ -763,7 +866,31 @@ class FF52Node extends Node {
 
   @override
   String toString() {
-    return '<$name d:type="ref">${value.toString()}</$name>';
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        name,
+      ),
+      [
+        XmlAttribute(
+          XmlName(
+            'type',
+            'd',
+          ),
+          'ref',
+        ),
+      ],
+      [
+        XmlText(
+          value.toString(),
+        ),
+      ],
+      false,
+    );
   }
 }
 
@@ -792,14 +919,59 @@ class FF56Node extends Node {
 
   @override
   String toString() {
-    switch (type) {
-      case DataTypes.bool:
-        return '<$name d:type="$type">${value == true ? '1' : '0'}</$name>';
-      case DataTypes.sfloat32:
-        return '<$name d:type="$type" d:alt_encoding="${hex.encode((ByteData(8)..setFloat64(0, value, Endian.little)).buffer.asUint8List())}" d:precision="string">${(value as num).toStringAsPrecision(6)}</$name>';
-      default:
-        return '<$name d:type="$type">${value.toString()}</$name>';
-    }
+    return toXmlElement().toString();
+  }
+
+  @override
+  XmlElement toXmlElement() {
+    return XmlElement(
+      XmlName(
+        name,
+      ),
+      [
+        XmlAttribute(
+          XmlName(
+            'type',
+            'd',
+          ),
+          type,
+        ),
+        if (type == RailWorksDataTypes.sfloat32)
+          XmlAttribute(
+            XmlName(
+              'alt_encoding',
+              'd',
+            ),
+            hex.encode(
+              Uint8List(8)
+                ..buffer.asByteData().setFloat64(0, value, Endian.little),
+            ),
+          ),
+        if (type == RailWorksDataTypes.sfloat32)
+          XmlAttribute(
+            XmlName(
+              'precision',
+              'd',
+            ),
+            'string',
+          ),
+      ],
+      [
+        if (type == RailWorksDataTypes.bool)
+          XmlText(
+            value ? '1' : '0',
+          )
+        else if (type == RailWorksDataTypes.sfloat32)
+          XmlText(
+            (value as num).toStringAsPrecision(6),
+          )
+        else
+          XmlText(
+            value.toString(),
+          ),
+      ],
+      false,
+    );
   }
 }
 
@@ -822,10 +994,17 @@ class FF70Node extends Node {
   String toString() {
     return '</$name>';
   }
+
+  @override
+  XmlElement toXmlElement() {
+    throw UnsupportedError('Invalid element type');
+  }
 }
 
 abstract class Node {
   const Node();
+
+  XmlElement toXmlElement();
 }
 
 enum StringContext {
