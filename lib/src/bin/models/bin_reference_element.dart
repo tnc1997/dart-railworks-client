@@ -12,6 +12,20 @@ class BinReferenceElement extends BinElement {
     required this.value,
   });
 
+  @override
+  int get hashCode {
+    return name.hashCode ^ value.hashCode;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinReferenceElement &&
+            runtimeType == other.runtimeType &&
+            name == other.name &&
+            value == other.value;
+  }
+
   BinReferenceElement copyWith({
     String? name,
     int? value,

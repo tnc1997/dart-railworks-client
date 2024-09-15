@@ -13,6 +13,21 @@ class BinOpeningElement extends BinElement {
     required this.numChildren,
   });
 
+  @override
+  int get hashCode {
+    return name.hashCode ^ id.hashCode ^ numChildren.hashCode;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinOpeningElement &&
+            runtimeType == other.runtimeType &&
+            name == other.name &&
+            id == other.id &&
+            numChildren == other.numChildren;
+  }
+
   BinOpeningElement copyWith({
     String? name,
     int? id,

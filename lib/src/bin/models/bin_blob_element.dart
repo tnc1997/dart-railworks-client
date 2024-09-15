@@ -14,6 +14,20 @@ class BinBlobElement extends BinElement {
     required this.bytes,
   });
 
+  @override
+  int get hashCode {
+    return size.hashCode ^ const ListEquality<int>().hash(bytes);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinBlobElement &&
+            runtimeType == other.runtimeType &&
+            size == other.size &&
+            const ListEquality<int>().equals(bytes, other.bytes);
+  }
+
   BinBlobElement copyWith({
     int? size,
     List<int>? bytes,

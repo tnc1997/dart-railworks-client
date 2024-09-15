@@ -9,6 +9,19 @@ class BinClosingElement extends BinElement {
     required this.name,
   });
 
+  @override
+  int get hashCode {
+    return name.hashCode;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinClosingElement &&
+            runtimeType == other.runtimeType &&
+            name == other.name;
+  }
+
   BinClosingElement copyWith({
     String? name,
   }) {

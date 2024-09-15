@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
@@ -16,6 +17,25 @@ class BinMatrixElement extends BinElement {
     required this.numElements,
     required this.elements,
   });
+
+  @override
+  int get hashCode {
+    return name.hashCode ^
+        elementType.hashCode ^
+        numElements.hashCode ^
+        const ListEquality<Object>().hash(elements);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinMatrixElement &&
+            runtimeType == other.runtimeType &&
+            name == other.name &&
+            elementType == other.elementType &&
+            numElements == other.numElements &&
+            const ListEquality<Object>().equals(elements, other.elements);
+  }
 
   BinMatrixElement copyWith({
     String? name,

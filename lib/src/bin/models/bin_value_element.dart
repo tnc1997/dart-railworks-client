@@ -18,6 +18,21 @@ class BinValueElement extends BinElement {
     required this.value,
   });
 
+  @override
+  int get hashCode {
+    return name.hashCode ^ type.hashCode ^ value.hashCode;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BinValueElement &&
+            runtimeType == other.runtimeType &&
+            name == other.name &&
+            type == other.type &&
+            value == other.value;
+  }
+
   BinValueElement copyWith({
     String? name,
     String? type,
