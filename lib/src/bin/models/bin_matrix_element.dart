@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/constants/railworks_xml_namespaces.dart';
+import '../../common/exceptions/data_type_invalid_exception.dart';
 import 'bin_element.dart';
 
 class BinMatrixElement extends BinElement {
@@ -60,6 +61,33 @@ class BinMatrixElement extends BinElement {
   XmlElement toXmlElement({
     Map<String, String?> namespaces = const {},
   }) {
+    final String value;
+
+    if (elementType == RailWorksDataTypes.bool) {
+      value = elements.cast<bool>().map((value) {
+        return value ? '1' : '0';
+      }).join(' ');
+    } else if (elementType == RailWorksDataTypes.cDeltaString) {
+      value = elements.cast<String>().join(' ');
+    } else if (elementType == RailWorksDataTypes.sfloat32) {
+      value = elements.cast<double>().map((value) {
+        return value.toStringAsFixed(7);
+      }).join(' ');
+    } else if (elementType == RailWorksDataTypes.sint8 ||
+        elementType == RailWorksDataTypes.sint16 ||
+        elementType == RailWorksDataTypes.sint32 ||
+        elementType == RailWorksDataTypes.sint64 ||
+        elementType == RailWorksDataTypes.suint8 ||
+        elementType == RailWorksDataTypes.suint16 ||
+        elementType == RailWorksDataTypes.suint32 ||
+        elementType == RailWorksDataTypes.suint64) {
+      value = elements.cast<int>().map((value) {
+        return value.toString();
+      }).join(' ');
+    } else {
+      throw DataTypeInvalidException();
+    }
+
     return XmlElement(
       XmlName(
         name,
@@ -89,18 +117,9 @@ class BinMatrixElement extends BinElement {
           ),
       ],
       [
-        if (elementType == RailWorksDataTypes.sfloat32)
-          XmlText(
-            elements.cast<double>().map((value) {
-              return value.toStringAsFixed(7);
-            }).join(' '),
-          )
-        else
-          XmlText(
-            elements.map((value) {
-              return value.toString();
-            }).join(' '),
-          ),
+        XmlText(
+          value,
+        ),
       ],
       false,
     );

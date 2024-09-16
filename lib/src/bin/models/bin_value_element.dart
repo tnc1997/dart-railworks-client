@@ -5,6 +5,7 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/constants/railworks_xml_namespaces.dart';
+import '../../common/exceptions/data_type_invalid_exception.dart';
 import 'bin_element.dart';
 
 class BinValueElement extends BinElement {
@@ -54,6 +55,27 @@ class BinValueElement extends BinElement {
   XmlElement toXmlElement({
     Map<String, String?> namespaces = const {},
   }) {
+    final String value;
+
+    if (type == RailWorksDataTypes.bool) {
+      value = (this.value as bool) ? '1' : '0';
+    } else if (type == RailWorksDataTypes.cDeltaString) {
+      value = this.value as String;
+    } else if (type == RailWorksDataTypes.sfloat32) {
+      value = (this.value as double).toStringAsPrecision(6);
+    } else if (type == RailWorksDataTypes.sint8 ||
+        type == RailWorksDataTypes.sint16 ||
+        type == RailWorksDataTypes.sint32 ||
+        type == RailWorksDataTypes.sint64 ||
+        type == RailWorksDataTypes.suint8 ||
+        type == RailWorksDataTypes.suint16 ||
+        type == RailWorksDataTypes.suint32 ||
+        type == RailWorksDataTypes.suint64) {
+      value = (this.value as int).toString();
+    } else {
+      throw DataTypeInvalidException();
+    }
+
     return XmlElement(
       XmlName(
         name,
@@ -89,18 +111,9 @@ class BinValueElement extends BinElement {
           ),
       ],
       [
-        if (type == RailWorksDataTypes.bool)
-          XmlText(
-            (value as bool) ? '1' : '0',
-          )
-        else if (type == RailWorksDataTypes.sfloat32)
-          XmlText(
-            (value as double).toStringAsPrecision(6),
-          )
-        else
-          XmlText(
-            value.toString(),
-          ),
+        XmlText(
+          value,
+        ),
       ],
       false,
     );

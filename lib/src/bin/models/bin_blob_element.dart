@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:convert/convert.dart';
 import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_xml_namespaces.dart';
@@ -47,6 +46,20 @@ class BinBlobElement extends BinElement {
   XmlElement toXmlElement({
     Map<String, String?> namespaces = const {},
   }) {
+    final buffer = StringBuffer();
+
+    for (var i = 0; i < bytes.length; i++) {
+      if (i != 0 && i % 32 == 0) {
+        buffer.write('\n');
+      } else if (i != 0 && i % 8 == 0) {
+        buffer.write(' ');
+      }
+
+      buffer.write(
+        bytes[i].toRadixString(16).padLeft(2, '0'),
+      );
+    }
+
     return XmlElement(
       XmlName(
         'blob',
@@ -63,22 +76,10 @@ class BinBlobElement extends BinElement {
       ],
       [
         XmlText(
-          hex.encode(bytes).slices(16).slices(4).map((values) {
-            return values.join(' ');
-          }).join('\n'),
+          buffer.toString(),
         ),
       ],
       false,
     );
-  }
-}
-
-extension on String {
-  Iterable<String> slices(
-    int length,
-  ) sync* {
-    for (final charCodes in codeUnits.slices(length)) {
-      yield String.fromCharCodes(charCodes);
-    }
   }
 }
