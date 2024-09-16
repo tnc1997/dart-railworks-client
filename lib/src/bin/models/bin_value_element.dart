@@ -5,7 +5,7 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/constants/railworks_xml_namespaces.dart';
-import '../../common/exceptions/data_type_invalid_exception.dart';
+import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import 'bin_element.dart';
 
 class BinValueElement extends BinElement {
@@ -73,7 +73,7 @@ class BinValueElement extends BinElement {
         type == RailWorksDataTypes.suint64) {
       value = (this.value as int).toString();
     } else {
-      throw DataTypeInvalidException();
+      throw RailWorksDataTypeInvalidException();
     }
 
     return XmlElement(

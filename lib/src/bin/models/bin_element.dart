@@ -4,8 +4,8 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/constants/railworks_xml_namespaces.dart';
-import '../../common/exceptions/data_type_invalid_exception.dart';
-import '../../common/exceptions/element_type_invalid_exception.dart';
+import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
+import '../exceptions/xml_element_invalid_exception.dart';
 import 'bin_blob_element.dart';
 import 'bin_matrix_element.dart';
 import 'bin_null_element.dart';
@@ -74,7 +74,7 @@ abstract class BinElement {
             type == RailWorksDataTypes.suint64) {
           elements.add(int.parse(value));
         } else {
-          throw DataTypeInvalidException();
+          throw RailWorksDataTypeInvalidException();
         }
       }
 
@@ -110,7 +110,7 @@ abstract class BinElement {
           type == RailWorksDataTypes.suint64) {
         value = int.parse(element.innerText);
       } else {
-        throw DataTypeInvalidException();
+        throw RailWorksDataTypeInvalidException();
       }
 
       return BinValueElement(
@@ -119,7 +119,7 @@ abstract class BinElement {
         value: value,
       );
     } else {
-      throw ElementTypeInvalidException();
+      throw XmlElementInvalidException(null, element);
     }
   }
 

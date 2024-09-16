@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/constants/railworks_xml_namespaces.dart';
-import '../../common/exceptions/data_type_invalid_exception.dart';
+import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import 'bin_element.dart';
 
 class BinMatrixElement extends BinElement {
@@ -85,7 +85,7 @@ class BinMatrixElement extends BinElement {
         return value.toString();
       }).join(' ');
     } else {
-      throw DataTypeInvalidException();
+      throw RailWorksDataTypeInvalidException();
     }
 
     return XmlElement(
