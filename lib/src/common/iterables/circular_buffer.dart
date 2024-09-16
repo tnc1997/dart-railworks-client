@@ -1,5 +1,3 @@
-import '../iterators/circular_buffer_iterator.dart';
-
 class CircularBuffer<E> extends Iterable<E> {
   final List<E?> _buffer;
   int _start;
@@ -15,7 +13,7 @@ class CircularBuffer<E> extends Iterable<E> {
 
   @override
   E get first {
-    return this[_start];
+    return _buffer[_start] as E;
   }
 
   void set first(
@@ -34,12 +32,12 @@ class CircularBuffer<E> extends Iterable<E> {
 
   @override
   Iterator<E> get iterator {
-    return CircularBufferIterator(this);
+    return _CircularBufferIterator(this);
   }
 
   @override
   E get last {
-    return this[_end];
+    return _buffer[_end] as E;
   }
 
   void set last(
@@ -110,8 +108,34 @@ class CircularBuffer<E> extends Iterable<E> {
     }
   }
 
+  int indexOf(
+    E element,
+  ) {
+    return indexWhere(
+      (_element) {
+        return _element == element;
+      },
+    );
+  }
+
+  int indexWhere(
+    bool test(E element),
+  ) {
+    var index = 0;
+
+    for (final element in this) {
+      if (test(element)) {
+        return index;
+      }
+
+      index += 1;
+    }
+
+    return -1;
+  }
+
   E removeFirst() {
-    final element = this[_start];
+    final element = _buffer[_start] as E;
 
     _buffer[_start] = null;
 
@@ -125,7 +149,7 @@ class CircularBuffer<E> extends Iterable<E> {
   E removeLast() {
     _end = _decrementIndex(_end);
 
-    final element = this[_end];
+    final element = _buffer[_end] as E;
 
     _buffer[_end] = null;
 
@@ -147,16 +171,36 @@ class CircularBuffer<E> extends Iterable<E> {
       index = _length;
     }
 
-    return index--;
+    return index -= 1;
   }
 
   int _incrementIndex(
     int index,
   ) {
-    if (++index == _length) {
+    if ((index += 1) == _length) {
       index = 0;
     }
 
     return index;
+  }
+}
+
+class _CircularBufferIterator<E> implements Iterator<E> {
+  final CircularBuffer _buffer;
+  int _position;
+
+  _CircularBufferIterator(
+    CircularBuffer buffer,
+  )   : _buffer = buffer,
+        _position = -1;
+
+  @override
+  E get current {
+    return _buffer[_position];
+  }
+
+  @override
+  bool moveNext() {
+    return (_position += 1) < _buffer.length;
   }
 }
