@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../../common/constants/railworks_data_types.dart';
+import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import '../../common/iterables/circular_buffer.dart';
-import '../../common/iterators/uint8_list_iterator.dart';
+import '../../common/readers/byte_reader.dart';
+import '../exceptions/bin_element_invalid_exception.dart';
 import '../models/bin_blob_element.dart';
 import '../models/bin_closing_element.dart';
 import '../models/bin_element.dart';
@@ -11,23 +13,24 @@ import '../models/bin_matrix_element.dart';
 import '../models/bin_null_element.dart';
 import '../models/bin_opening_element.dart';
 import '../models/bin_reference_element.dart';
+import '../models/bin_undefined_element.dart';
 import '../models/bin_value_element.dart';
 
-class BinUint8ListIterator extends Uint8ListIterator {
-  final _elements = CircularBuffer<BinElement?>(0xff);
+class BinByteReader extends ByteReader {
+  final _elements = CircularBuffer<BinElement>(0xff);
   final _strings = CircularBuffer<String>(0xffff);
 
-  BinUint8ListIterator(
-    Uint8List list,
-  ) : super(list);
+  BinByteReader(
+    List<int> bytes,
+  ) : super(bytes);
 
   BinBlobElement readBlobElement() {
     final size = readUint32(Endian.little);
-    final data = readBytes(size);
+    final bytes = readBytes(size);
 
     final element = BinBlobElement(
       size: size,
-      bytes: data,
+      bytes: bytes,
     );
 
     _elements.add(element);
@@ -41,11 +44,11 @@ class BinUint8ListIterator extends Uint8ListIterator {
     final element = _elements[index] as BinBlobElement;
 
     final size = readUint32(Endian.little);
-    final data = readBytes(size);
+    final bytes = readBytes(size);
 
     return element.copyWith(
       size: size,
-      bytes: data,
+      bytes: bytes,
     );
   }
 
@@ -77,7 +80,7 @@ class BinUint8ListIterator extends Uint8ListIterator {
     } else if (element is BinClosingElement) {
       return readCachedClosingElement(index);
     } else {
-      throw Exception('Invalid element type');
+      throw BinElementInvalidException(null, element);
     }
   }
 
@@ -158,37 +161,33 @@ class BinUint8ListIterator extends Uint8ListIterator {
   }
 
   BinElement readElement() {
-    while (true) {
-      final index = readByte();
+    final index = readByte();
 
-      if (index == 0xff) {
-        final type = readByte();
+    if (index == 0xff) {
+      final type = readByte();
 
-        if (type == 0x41) {
-          return readMatrixElement();
-        } else if (type == 0x42) {
-          return readBlobElement();
-        } else if (type == 0x43) {
-          readBytes(5);
-          _elements.add(null);
-          continue;
-        } else if (type == 0x4e) {
-          return readNullElement();
-        } else if (type == 0x50) {
-          return readOpeningElement();
-        } else if (type == 0x52) {
-          return readReferenceElement();
-        } else if (type == 0x56) {
-          return readValueElement();
-        } else if (type == 0x70) {
-          return readClosingElement();
-        } else {
-          throw new Exception('Invalid element type');
-        }
+      if (type == 0x41) {
+        return readMatrixElement();
+      } else if (type == 0x42) {
+        return readBlobElement();
+      } else if (type == 0x43) {
+        return readUndefinedElement(5);
+      } else if (type == 0x4e) {
+        return readNullElement();
+      } else if (type == 0x50) {
+        return readOpeningElement();
+      } else if (type == 0x52) {
+        return readReferenceElement();
+      } else if (type == 0x56) {
+        return readValueElement();
+      } else if (type == 0x70) {
+        return readClosingElement();
+      } else {
+        throw BinElementInvalidException();
       }
-
-      return readCachedElement(index);
     }
+
+    return readCachedElement(index);
   }
 
   BinMatrixElement readMatrixElement() {
@@ -251,12 +250,26 @@ class BinUint8ListIterator extends Uint8ListIterator {
     return element;
   }
 
+  BinUndefinedElement readUndefinedElement(
+    int length,
+  ) {
+    final bytes = readBytes(length);
+
+    final element = BinUndefinedElement(
+      bytes: bytes,
+    );
+
+    _elements.add(element);
+
+    return element;
+  }
+
   String readString() {
     final index = readUint16(Endian.little);
 
     if (index == 0xffff) {
-      final size = readUint32(Endian.little);
-      final codeUnits = readBytes(size);
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
 
       final string = utf8.decode(codeUnits).replaceAll('::', '-');
 
@@ -295,7 +308,7 @@ class BinUint8ListIterator extends Uint8ListIterator {
       case RailWorksDataTypes.suint64:
         return readUint64(Endian.little);
       default:
-        throw Exception('Invalid data type');
+        throw RailWorksDataTypeInvalidException();
     }
   }
 

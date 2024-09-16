@@ -1,23 +1,11 @@
 import 'dart:typed_data';
 
-class Uint8ListIterator implements Iterator<int> {
-  final Uint8List _list;
-  int _position;
+class ByteReader {
+  final Iterator<int> _iterator;
 
-  Uint8ListIterator(
-    Uint8List list,
-  )   : _list = list,
-        _position = -1;
-
-  @override
-  int get current {
-    return _list[_position];
-  }
-
-  @override
-  bool moveNext() {
-    return ++_position < _list.length;
-  }
+  ByteReader(
+    List<int> bytes,
+  ) : _iterator = bytes.iterator..moveNext();
 
   bool readBool() {
     return readByte() == 1;
@@ -25,9 +13,9 @@ class Uint8ListIterator implements Iterator<int> {
 
   int readByte() {
     try {
-      return current;
+      return _iterator.current;
     } finally {
-      moveNext();
+      _iterator.moveNext();
     }
   }
 
