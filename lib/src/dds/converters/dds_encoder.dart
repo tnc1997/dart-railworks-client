@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../constants/dds_d3d_formats.dart';
+import '../exceptions/dds_header10_required_exception.dart';
 import '../models/dds.dart';
 
 /// A converter that encodes a [Dds] to bytes.
@@ -49,7 +50,7 @@ class DdsEncoder extends Converter<Dds, List<int>> {
     if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = input.header10;
       if (header10 == null) {
-        throw Exception('header10 must not be null if four cc is DX10');
+        throw DdsHeader10RequiredException();
       }
 
       data.setUint32(0x80, header10.dxgiFormat, Endian.little);
@@ -110,7 +111,7 @@ class _DdsEncoderSink implements Sink<Dds> {
     if (data.header.pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = data.header10;
       if (header10 == null) {
-        throw Exception('header10 must not be null if four cc is DX10');
+        throw DdsHeader10RequiredException();
       }
 
       _add(header10.dxgiFormat);
