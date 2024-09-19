@@ -6,6 +6,11 @@ import '../../dds/constants/dds_d3d_formats.dart';
 import '../../dds/constants/dds_dxgi_formats.dart';
 import '../../dds/constants/dds_header_flags.dart';
 import '../../dds/constants/dds_pixel_format_flags.dart';
+import '../../dds/exceptions/dds_dxgi_format_invalid.dart';
+import '../../dds/exceptions/dds_four_cc_invalid_exception.dart';
+import '../../dds/exceptions/dds_header_flags_invalid_exception.dart';
+import '../../dds/exceptions/dds_mip_map_count_required_exception.dart';
+import '../../dds/exceptions/dds_rgb_bit_count_required_exception.dart';
 import '../../dds/models/dds.dart';
 import '../constants/tgpcdx_texture_formats.dart';
 import '../exceptions/tgpcdx_texture_format_invalid_exception.dart';
@@ -122,12 +127,17 @@ Iterable<TgpcdxChcImageDx> _getChcImageDxs(
 
   if (dds.header.caps & DdsCaps.mipMap != 0x0) {
     if (dds.header.flags & DdsHeaderFlags.mipMapCount == 0x0) {
-      throw Exception('Invalid header flags');
+      throw DdsHeaderFlagsInvalidException(
+        'The mipmap count header flag is required when the texture is mipmapped',
+        dds.header.flags,
+      );
     }
 
     final mipMapCount = dds.header.mipMapCount;
     if (mipMapCount == null) {
-      throw Exception('Invalid mip map count');
+      throw DdsMipMapCountRequiredException(
+        'The mipmap count is required when the texture is mipmapped',
+      );
     }
 
     var offset = 0;
@@ -197,7 +207,9 @@ int _getLayerSize(
     case TgpcdxTextureFormats.col888:
     case TgpcdxTextureFormats.cola8888:
       if (rgbBitCount == null) {
-        throw Exception('Invalid rgb bit count');
+        throw DdsRgbBitCountRequiredException(
+          'The rgb bit count is required when the texture format is ${TgpcdxTextureFormats.col888} or ${TgpcdxTextureFormats.cola8888}',
+        );
       }
 
       final pitch = (width * rgbBitCount + 7) ~/ 8;
@@ -236,10 +248,10 @@ String _getTextureFormat(
           case DdsDxgiFormats.bc3Unorm:
             return TgpcdxTextureFormats.compressedInterpolatedAlpha;
           default:
-            throw Exception('Invalid dxgi format');
+            throw DdsDxgiFormatInvalid(null, dxgiFormat);
         }
       default:
-        throw Exception('Invalid four cc');
+        throw DdsFourCcInvalidException(null, fourCc);
     }
   }
 

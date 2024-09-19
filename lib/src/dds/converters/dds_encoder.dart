@@ -50,7 +50,9 @@ class DdsEncoder extends Converter<Dds, List<int>> {
     if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = input.header10;
       if (header10 == null) {
-        throw DdsHeader10RequiredException();
+        throw DdsHeader10RequiredException(
+          'The header10 is required when the four cc is DX10',
+        );
       }
 
       data.setUint32(0x80, header10.dxgiFormat, Endian.little);
@@ -111,7 +113,9 @@ class _DdsEncoderSink implements Sink<Dds> {
     if (data.header.pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = data.header10;
       if (header10 == null) {
-        throw DdsHeader10RequiredException();
+        throw DdsHeader10RequiredException(
+          'The header10 is required when the four cc is DX10',
+        );
       }
 
       _add(header10.dxgiFormat);
