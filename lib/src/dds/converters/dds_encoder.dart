@@ -4,9 +4,9 @@ import 'dart:typed_data';
 import '../constants/dds_d3d_formats.dart';
 import '../models/dds.dart';
 
-/// A converter that converts a [Dds] to bytes.
-class DdsToBytesConverter extends Converter<Dds, List<int>> {
-  const DdsToBytesConverter();
+/// A converter that encodes a [Dds] to bytes.
+class DdsEncoder extends Converter<Dds, List<int>> {
+  const DdsEncoder();
 
   @override
   List<int> convert(
@@ -66,18 +66,14 @@ class DdsToBytesConverter extends Converter<Dds, List<int>> {
   Sink<Dds> startChunkedConversion(
     Sink<List<int>> sink,
   ) {
-    return _DdsToBytesConverterSink(
-      sink: sink,
-    );
+    return _DdsEncoderSink(sink);
   }
 }
 
-class _DdsToBytesConverterSink implements Sink<Dds> {
+class _DdsEncoderSink implements Sink<Dds> {
   final Sink<List<int>> _sink;
 
-  _DdsToBytesConverterSink({
-    required Sink<List<int>> sink,
-  }) : _sink = sink;
+  _DdsEncoderSink(this._sink);
 
   @override
   void add(

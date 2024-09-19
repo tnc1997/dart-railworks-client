@@ -9,9 +9,9 @@ import '../models/dds_header.dart';
 import '../models/dds_header_dxt10.dart';
 import '../models/dds_pixel_format.dart';
 
-/// A converter that converts bytes to a [Dds].
-class BytesToDdsConverter extends Converter<List<int>, Dds> {
-  const BytesToDdsConverter();
+/// A converter that decodes bytes to a [Dds].
+class DdsDecoder extends Converter<List<int>, Dds> {
+  const DdsDecoder();
 
   @override
   Dds convert(
@@ -95,13 +95,11 @@ class BytesToDdsConverter extends Converter<List<int>, Dds> {
   Sink<List<int>> startChunkedConversion(
     Sink<Dds> sink,
   ) {
-    return _BytesToDdsConverterSink(
-      sink: sink,
-    );
+    return _DdsDecoderSink(sink);
   }
 }
 
-class _BytesToDdsConverterSink extends ByteConversionSink {
+class _DdsDecoderSink extends ByteConversionSink {
   final Sink<Dds> _sink;
 
   final _bytes = Uint8List(4);
@@ -133,9 +131,7 @@ class _BytesToDdsConverterSink extends ByteConversionSink {
   int? _arraySize;
   int? _miscFlags2;
 
-  _BytesToDdsConverterSink({
-    required Sink<Dds> sink,
-  }) : _sink = sink;
+  _DdsDecoderSink(this._sink);
 
   @override
   void add(
