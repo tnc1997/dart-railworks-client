@@ -4,6 +4,7 @@ import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_xml_namespaces.dart';
 import '../exceptions/bin_element_invalid_exception.dart';
+import '../exceptions/bin_prelude_invalid_exception.dart';
 import '../models/bin_closing_element.dart';
 import '../models/bin_opening_element.dart';
 import '../models/bin_undefined_element.dart';
@@ -23,9 +24,9 @@ class BinDecoder extends Converter<List<int>, XmlDocument> {
   ) {
     final reader = BinByteReader(input);
 
-    for (final byte in _prelude) {
-      if (reader.readByte() != byte) {
-        throw Exception('Invalid prelude');
+    for (var i = 0; i < _prelude.length; i++) {
+      if (reader.readByte() != _prelude[i]) {
+        throw BinPreludeInvalidException(null, i);
       }
     }
 
@@ -103,7 +104,7 @@ extension on BinByteReader {
       final element = readElement();
 
       if (element is BinClosingElement) {
-        throw BinElementInvalidException();
+        throw BinElementInvalidException(null, element);
       } else if (element is BinOpeningElement) {
         return XmlElement(
           XmlName(
