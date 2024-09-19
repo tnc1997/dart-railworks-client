@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
+import '../../common/constants/railworks_xml_namespaces.dart';
 import '../xml_converters/tgpcdx_palette_xml_converter.dart';
 import 'tgpcdx_mip.dart';
 
@@ -13,7 +14,7 @@ part 'tgpcdx_chc_texture_data.g.dart';
 class TgpcdxChcTextureData {
   @annotation.XmlAttribute(
     name: 'id',
-    namespace: 'http://www.kuju.com/TnT/2003/Delta',
+    namespace: RailWorksXmlNamespaces.delta,
   )
   final int id;
 

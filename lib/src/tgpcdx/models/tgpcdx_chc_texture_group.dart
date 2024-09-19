@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
+import '../../common/constants/railworks_xml_namespaces.dart';
 import 'tgpcdx_texture.dart';
 
 part 'tgpcdx_chc_texture_group.g.dart';
@@ -12,13 +13,13 @@ part 'tgpcdx_chc_texture_group.g.dart';
 class TgpcdxChcTextureGroup {
   @annotation.XmlAttribute(
     name: 'version',
-    namespace: 'http://www.kuju.com/TnT/2003/Delta',
+    namespace: RailWorksXmlNamespaces.delta,
   )
   final String version;
 
   @annotation.XmlAttribute(
     name: 'id',
-    namespace: 'http://www.kuju.com/TnT/2003/Delta',
+    namespace: RailWorksXmlNamespaces.delta,
   )
   final int id;
 
