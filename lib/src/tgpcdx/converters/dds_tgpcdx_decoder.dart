@@ -8,6 +8,7 @@ import '../../dds/constants/dds_header_flags.dart';
 import '../../dds/constants/dds_pixel_format_flags.dart';
 import '../../dds/models/dds.dart';
 import '../constants/tgpcdx_texture_formats.dart';
+import '../exceptions/tgpcdx_texture_format_invalid_exception.dart';
 import '../models/tgpcdx_chc_image_dx.dart';
 import '../models/tgpcdx_chc_texture.dart';
 import '../models/tgpcdx_chc_texture_data.dart';
@@ -181,7 +182,7 @@ int _getCompressionBlockSize(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return 16;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -209,7 +210,7 @@ int _getLayerSize(
           max<int>(1, (height + 3) ~/ 4) *
           _getCompressionBlockSize(format);
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 

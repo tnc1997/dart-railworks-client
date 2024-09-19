@@ -11,6 +11,7 @@ import '../../dds/models/dds.dart';
 import '../../dds/models/dds_header.dart';
 import '../../dds/models/dds_pixel_format.dart';
 import '../constants/tgpcdx_texture_formats.dart';
+import '../exceptions/tgpcdx_texture_format_invalid_exception.dart';
 import '../models/tgpcdx_chc_image_dx.dart';
 import '../models/tgpcdx_chc_texture_group.dart';
 
@@ -75,7 +76,7 @@ int? _getABitMask(
     case TgpcdxTextureFormats.cola8888:
       return 0xff000000;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -91,7 +92,7 @@ int? _getBBitMask(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return null;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -118,7 +119,7 @@ int _getCompressionBlockSize(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return 16;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -152,7 +153,7 @@ int? _getFourCc(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return DdsD3dFormats.dxt5;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -168,7 +169,7 @@ int? _getGBitMask(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return null;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -219,7 +220,7 @@ int _getHeaderFlags(
       flags |= DdsHeaderFlags.linearSize;
       break;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 
   if (chcImageDxs.length > 1) {
@@ -243,7 +244,7 @@ int _getPitchOrLinearSize(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return max(1, ((width + 3) ~/ 4)) * _getCompressionBlockSize(format);
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -281,7 +282,7 @@ int _getPixelFormatFlags(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return DdsPixelFormatFlags.fourCc;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -297,7 +298,7 @@ int? _getRBitMask(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return null;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
 
@@ -313,6 +314,6 @@ int? _getRgbBitCount(
     case TgpcdxTextureFormats.compressedInterpolatedAlpha:
       return null;
     default:
-      throw Exception('Invalid texture format');
+      throw TgpcdxTextureFormatInvalidException(null, format);
   }
 }
