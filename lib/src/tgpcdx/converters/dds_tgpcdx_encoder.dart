@@ -14,9 +14,9 @@ import '../constants/tgpcdx_texture_formats.dart';
 import '../models/tgpcdx_chc_image_dx.dart';
 import '../models/tgpcdx_chc_texture_group.dart';
 
-class TgpcdxChcTextureGroupToDdsConverter
-    extends Converter<TgpcdxChcTextureGroup, Dds> {
-  const TgpcdxChcTextureGroupToDdsConverter();
+/// A converter that encodes a [TgpcdxChcTextureGroup] to a [Dds].
+class DdsTgpcdxEncoder extends Converter<TgpcdxChcTextureGroup, Dds> {
+  const DdsTgpcdxEncoder();
 
   @override
   Dds convert(
@@ -34,19 +34,14 @@ class TgpcdxChcTextureGroupToDdsConverter
   Sink<TgpcdxChcTextureGroup> startChunkedConversion(
     Sink<Dds> sink,
   ) {
-    return _TgpcdxChcTextureGroupToDdsConverterSink(
-      sink: sink,
-    );
+    return _DdsTgpcdxEncoderSink(sink);
   }
 }
 
-class _TgpcdxChcTextureGroupToDdsConverterSink
-    implements Sink<TgpcdxChcTextureGroup> {
+class _DdsTgpcdxEncoderSink implements Sink<TgpcdxChcTextureGroup> {
   final Sink<Dds> _sink;
 
-  _TgpcdxChcTextureGroupToDdsConverterSink({
-    required Sink<Dds> sink,
-  }) : _sink = sink;
+  _DdsTgpcdxEncoderSink(this._sink);
 
   @override
   void add(

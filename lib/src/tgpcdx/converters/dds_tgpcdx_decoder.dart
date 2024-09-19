@@ -14,14 +14,13 @@ import '../models/tgpcdx_chc_texture_data.dart';
 import '../models/tgpcdx_chc_texture_group.dart';
 import '../models/tgpcdx_data.dart';
 import '../models/tgpcdx_mip.dart';
-import '../models/tgpcdx_palette.dart';
 import '../models/tgpcdx_texture.dart';
 
-class DdsToTgpcdxChcTextureGroupConverter
-    extends Converter<Dds, TgpcdxChcTextureGroup> {
+/// A converter that decodes a [Dds] to a [TgpcdxChcTextureGroup].
+class DdsTgpcdxDecoder extends Converter<Dds, TgpcdxChcTextureGroup> {
   final String chcTextureName;
 
-  const DdsToTgpcdxChcTextureGroupConverter({
+  const DdsTgpcdxDecoder({
     required this.chcTextureName,
   });
 
@@ -45,7 +44,7 @@ class DdsToTgpcdxChcTextureGroupConverter
               mip: TgpcdxMip(
                 chcImageDxs: _getChcImageDxs(input, random).toList(),
               ),
-              palette: const TgpcdxPalette(),
+              palette: null,
             ),
           ),
         ),
@@ -57,22 +56,22 @@ class DdsToTgpcdxChcTextureGroupConverter
   Sink<Dds> startChunkedConversion(
     Sink<TgpcdxChcTextureGroup> sink,
   ) {
-    return _DdsToTgpcdxChcTextureGroupConverterSink(
+    return _DdsTgpcdxDecoderSink(
+      sink,
       chcTextureName: chcTextureName,
-      sink: sink,
     );
   }
 }
 
-class _DdsToTgpcdxChcTextureGroupConverterSink implements Sink<Dds> {
+class _DdsTgpcdxDecoderSink implements Sink<Dds> {
   final String chcTextureName;
 
   final Sink<TgpcdxChcTextureGroup> _sink;
 
-  _DdsToTgpcdxChcTextureGroupConverterSink({
+  _DdsTgpcdxDecoderSink(
+    this._sink, {
     required this.chcTextureName,
-    required Sink<TgpcdxChcTextureGroup> sink,
-  }) : _sink = sink;
+  });
 
   @override
   void add(
@@ -95,7 +94,7 @@ class _DdsToTgpcdxChcTextureGroupConverterSink implements Sink<Dds> {
                 mip: TgpcdxMip(
                   chcImageDxs: _getChcImageDxs(data, random).toList(),
                 ),
-                palette: const TgpcdxPalette(),
+                palette: null,
               ),
             ),
           ),
