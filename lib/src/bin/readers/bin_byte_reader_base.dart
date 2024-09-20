@@ -52,56 +52,6 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
     return _readCachedElement(index);
   }
 
-  @override
-  String readString() {
-    final index = readUint16(Endian.little);
-
-    if (index == 0xffff) {
-      final length = readUint32(Endian.little);
-      final codeUnits = readBytes(length);
-
-      final string = utf8.decode(codeUnits).replaceAll('::', '-');
-
-      _strings.add(string);
-
-      return string;
-    } else {
-      return _strings[index];
-    }
-  }
-
-  @override
-  Object readValue(
-    String dataType,
-  ) {
-    switch (dataType) {
-      case RailWorksDataTypes.bool:
-        return readBool();
-      case RailWorksDataTypes.cDeltaString:
-        return readString();
-      case RailWorksDataTypes.sfloat32:
-        return readFloat32(Endian.little);
-      case RailWorksDataTypes.sint8:
-        return readInt8();
-      case RailWorksDataTypes.sint16:
-        return readInt16(Endian.little);
-      case RailWorksDataTypes.sint32:
-        return readInt32(Endian.little);
-      case RailWorksDataTypes.sint64:
-        return readInt64(Endian.little);
-      case RailWorksDataTypes.suint8:
-        return readUint8();
-      case RailWorksDataTypes.suint16:
-        return readUint16(Endian.little);
-      case RailWorksDataTypes.suint32:
-        return readUint32(Endian.little);
-      case RailWorksDataTypes.suint64:
-        return readUint64(Endian.little);
-      default:
-        throw RailWorksDataTypeInvalidException();
-    }
-  }
-
   BinBlobElement _readBlobElement() {
     final size = readUint32(Endian.little);
     final bytes = readBytes(size);
@@ -171,7 +121,7 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
 
     final elements = <Object>[];
     for (var i = 0; i < numElements; i++) {
-      elements.add(readValue(element.elementType));
+      elements.add(_readValue(element.elementType));
     }
 
     return element.copyWith(
@@ -219,7 +169,7 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
   ) {
     final element = _elements[index] as BinValueElement;
 
-    final value = readValue(element.type);
+    final value = _readValue(element.type);
 
     return element.copyWith(
       value: value,
@@ -227,7 +177,7 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
   }
 
   BinClosingElement _readClosingElement() {
-    final name = readString();
+    final name = _readString();
 
     final element = BinClosingElement(
       name: name,
@@ -239,13 +189,13 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
   }
 
   BinMatrixElement _readMatrixElement() {
-    final name = readString();
-    final elementType = readString();
+    final name = _readString();
+    final elementType = _readString();
     final numElements = readByte();
 
     final elements = <Object>[];
     for (var i = 0; i < numElements; i++) {
-      elements.add(readValue(elementType));
+      elements.add(_readValue(elementType));
     }
 
     final element = BinMatrixElement(
@@ -269,7 +219,7 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
   }
 
   BinOpeningElement _readOpeningElement() {
-    final name = readString();
+    final name = _readString();
     final id = readUint32(Endian.little);
     final numChildren = readUint32(Endian.little);
 
@@ -285,7 +235,7 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
   }
 
   BinReferenceElement _readReferenceElement() {
-    final name = readString();
+    final name = _readString();
     final value = readUint32(Endian.little);
 
     final element = BinReferenceElement(
@@ -296,6 +246,23 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
     _elements.add(element);
 
     return element;
+  }
+
+  String _readString() {
+    final index = readUint16(Endian.little);
+
+    if (index == 0xffff) {
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
+
+      final string = utf8.decode(codeUnits).replaceAll('::', '-');
+
+      _strings.add(string);
+
+      return string;
+    } else {
+      return _strings[index];
+    }
   }
 
   BinUndefinedElement _readUndefinedElement(
@@ -312,10 +279,41 @@ mixin BinByteReaderBase on ByteReaderBase implements BinByteReader {
     return element;
   }
 
+  Object _readValue(
+    String dataType,
+  ) {
+    switch (dataType) {
+      case RailWorksDataTypes.bool:
+        return readBool();
+      case RailWorksDataTypes.cDeltaString:
+        return _readString();
+      case RailWorksDataTypes.sfloat32:
+        return readFloat32(Endian.little);
+      case RailWorksDataTypes.sint8:
+        return readInt8();
+      case RailWorksDataTypes.sint16:
+        return readInt16(Endian.little);
+      case RailWorksDataTypes.sint32:
+        return readInt32(Endian.little);
+      case RailWorksDataTypes.sint64:
+        return readInt64(Endian.little);
+      case RailWorksDataTypes.suint8:
+        return readUint8();
+      case RailWorksDataTypes.suint16:
+        return readUint16(Endian.little);
+      case RailWorksDataTypes.suint32:
+        return readUint32(Endian.little);
+      case RailWorksDataTypes.suint64:
+        return readUint64(Endian.little);
+      default:
+        throw RailWorksDataTypeInvalidException();
+    }
+  }
+
   BinValueElement _readValueElement() {
-    final name = readString();
-    final type = readString();
-    final value = readValue(type);
+    final name = _readString();
+    final type = _readString();
+    final value = _readValue(type);
 
     final element = BinValueElement(
       name: name,
