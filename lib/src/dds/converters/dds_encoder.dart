@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../../common/writers/byte_writer.dart';
-import '../../common/writers/chunked_byte_writer.dart';
+import '../../common/writers/railworks_byte_writer.dart';
+import '../../common/writers/railworks_chunked_byte_writer.dart';
 import '../constants/dds_d3d_formats.dart';
 import '../exceptions/dds_header10_required_exception.dart';
 import '../models/dds.dart';
@@ -77,9 +77,9 @@ class DdsEncoder extends Converter<Dds, List<int>> {
 
 class _DdsEncoderSink implements Sink<Dds> {
   final Sink<List<int>> _sink;
-  final ByteWriter _writer;
+  final RailWorksByteWriter _writer;
 
-  _DdsEncoderSink(this._sink) : _writer = ChunkedByteWriter(_sink);
+  _DdsEncoderSink(this._sink) : _writer = RailWorksChunkedByteWriter(_sink);
 
   @override
   void add(

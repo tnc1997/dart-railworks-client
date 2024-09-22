@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'byte_writer.dart';
+import 'railworks_byte_writer.dart';
 
-mixin ByteWriterBase implements ByteWriter {
+mixin RailWorksByteWriterBase implements RailWorksByteWriter {
   @override
   void writeBool(
     bool value,

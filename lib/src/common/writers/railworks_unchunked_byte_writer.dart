@@ -1,9 +1,9 @@
-import 'byte_writer_base.dart';
+import 'railworks_byte_writer_base.dart';
 
-class UnchunkedByteWriter with ByteWriterBase {
+class RailWorksUnchunkedByteWriter with RailWorksByteWriterBase {
   final Sink<int> _sink;
 
-  UnchunkedByteWriter(
+  RailWorksUnchunkedByteWriter(
     this._sink,
   );
 

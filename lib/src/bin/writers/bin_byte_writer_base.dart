@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import '../../common/iterables/railworks_circular_buffer.dart';
-import '../../common/writers/byte_writer_base.dart';
+import '../../common/writers/railworks_byte_writer_base.dart';
 import '../exceptions/bin_element_invalid_exception.dart';
 import '../models/bin_blob_element.dart';
 import '../models/bin_closing_element.dart';
@@ -17,7 +17,7 @@ import '../models/bin_undefined_element.dart';
 import '../models/bin_value_element.dart';
 import 'bin_byte_writer.dart';
 
-mixin BinByteWriterBase on ByteWriterBase implements BinByteWriter {
+mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
   final _elements = RailWorksCircularBuffer<BinElement>(0xff);
   final _strings = RailWorksCircularBuffer<String>(0xffff);
 

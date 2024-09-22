@@ -1,7 +1,7 @@
-import '../../common/writers/byte_writer.dart';
+import '../../common/writers/railworks_byte_writer.dart';
 import '../models/bin_element.dart';
 
-abstract class BinByteWriter extends ByteWriter {
+abstract class BinByteWriter extends RailWorksByteWriter {
   void writeElement(
     BinElement element,
   );

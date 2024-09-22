@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-abstract class ByteWriter {
+abstract class RailWorksByteWriter {
   void writeBool(
     bool value,
   ) {
