@@ -1,13 +1,13 @@
 import '../../common/exceptions/railworks_client_exception.dart';
 
-class DdsMipMapCountRequiredException extends RailWorksClientException {
-  const DdsMipMapCountRequiredException([
+class DdsHeaderInvalidException extends RailWorksClientException {
+  const DdsHeaderInvalidException([
     String? message,
   ]) : super(message);
 
   @override
   String toString() {
-    final buffer = StringBuffer('DdsMipMapCountRequiredException');
+    final buffer = StringBuffer('DdsHeaderInvalidException');
 
     if (message != null) {
       buffer.write(': $message');

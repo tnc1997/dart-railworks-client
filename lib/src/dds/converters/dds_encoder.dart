@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import '../../common/byte_writers/railworks_byte_writer.dart';
 import '../../common/byte_writers/railworks_chunked_byte_writer.dart';
 import '../constants/dds_d3d_formats.dart';
-import '../exceptions/dds_header10_required_exception.dart';
+import '../exceptions/dds_header10_invalid_exception.dart';
 import '../models/dds.dart';
 
 /// A converter that encodes a [Dds] to bytes.
@@ -52,8 +52,8 @@ class DdsEncoder extends Converter<Dds, List<int>> {
     if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = input.header10;
       if (header10 == null) {
-        throw DdsHeader10RequiredException(
-          'The header10 is required when the four cc is DX10',
+        throw DdsHeader10InvalidException(
+          'The header10 is required when the four cc is \'DX10\'',
         );
       }
 
@@ -119,8 +119,8 @@ class _DdsEncoderSink implements Sink<Dds> {
     if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = data.header10;
       if (header10 == null) {
-        throw DdsHeader10RequiredException(
-          'The header10 is required when the four cc is DX10',
+        throw DdsHeader10InvalidException(
+          'The header10 is required when the four cc is \'DX10\'',
         );
       }
 

@@ -1,16 +1,13 @@
 import '../../common/exceptions/railworks_client_exception.dart';
 
-class DdsFourCcInvalidException extends RailWorksClientException {
-  final int? fourCc;
-
-  const DdsFourCcInvalidException([
+class DdsPixelFormatInvalidException extends RailWorksClientException {
+  const DdsPixelFormatInvalidException([
     String? message,
-    this.fourCc,
   ]) : super(message);
 
   @override
   String toString() {
-    final buffer = StringBuffer('DdsFourCcInvalidException');
+    final buffer = StringBuffer('DdsPixelFormatInvalidException');
 
     if (message != null) {
       buffer.write(': $message');

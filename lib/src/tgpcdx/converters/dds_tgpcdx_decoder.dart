@@ -7,10 +7,8 @@ import '../../dds/constants/dds_dxgi_formats.dart';
 import '../../dds/constants/dds_header_flags.dart';
 import '../../dds/constants/dds_pixel_format_flags.dart';
 import '../../dds/exceptions/dds_dxgi_format_invalid.dart';
-import '../../dds/exceptions/dds_four_cc_invalid_exception.dart';
-import '../../dds/exceptions/dds_header_flags_invalid_exception.dart';
-import '../../dds/exceptions/dds_mip_map_count_required_exception.dart';
-import '../../dds/exceptions/dds_rgb_bit_count_required_exception.dart';
+import '../../dds/exceptions/dds_header_invalid_exception.dart';
+import '../../dds/exceptions/dds_pixel_format_invalid_exception.dart';
 import '../../dds/models/dds.dart';
 import '../constants/tgpcdx_texture_formats.dart';
 import '../exceptions/tgpcdx_texture_format_invalid_exception.dart';
@@ -70,15 +68,14 @@ class DdsTgpcdxDecoder extends Converter<Dds, TgpcdxChcTextureGroup> {
 
     if (dds.header.caps & DdsCaps.mipMap != 0x0) {
       if (dds.header.flags & DdsHeaderFlags.mipMapCount == 0x0) {
-        throw DdsHeaderFlagsInvalidException(
+        throw DdsHeaderInvalidException(
           'The mipmap count header flag is required when the texture is mipmapped',
-          dds.header.flags,
         );
       }
 
       final mipMapCount = dds.header.mipMapCount;
       if (mipMapCount == null) {
-        throw DdsMipMapCountRequiredException(
+        throw DdsHeaderInvalidException(
           'The mipmap count is required when the texture is mipmapped',
         );
       }
@@ -150,7 +147,7 @@ class DdsTgpcdxDecoder extends Converter<Dds, TgpcdxChcTextureGroup> {
       case TgpcdxTextureFormats.col888:
       case TgpcdxTextureFormats.cola8888:
         if (rgbBitCount == null) {
-          throw DdsRgbBitCountRequiredException(
+          throw DdsPixelFormatInvalidException(
             'The rgb bit count is required when the texture format is ${TgpcdxTextureFormats.col888} or ${TgpcdxTextureFormats.cola8888}',
           );
         }
@@ -194,7 +191,9 @@ class DdsTgpcdxDecoder extends Converter<Dds, TgpcdxChcTextureGroup> {
               throw DdsDxgiFormatInvalid(null, dxgiFormat);
           }
         default:
-          throw DdsFourCcInvalidException(null, fourCc);
+          throw DdsPixelFormatInvalidException(
+            'The four cc \'$fourCc\' is invalid',
+          );
       }
     }
 
