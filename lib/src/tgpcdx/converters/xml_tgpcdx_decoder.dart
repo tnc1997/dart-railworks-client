@@ -14,29 +14,4 @@ class XmlTgpcdxDecoder extends Converter<XmlDocument, TgpcdxChcTextureGroup> {
   ) {
     return TgpcdxChcTextureGroup.fromXmlElement(input.rootElement);
   }
-
-  @override
-  Sink<XmlDocument> startChunkedConversion(
-    Sink<TgpcdxChcTextureGroup> sink,
-  ) {
-    return _XmlTgpcdxDecoderSink(sink);
-  }
-}
-
-class _XmlTgpcdxDecoderSink implements Sink<XmlDocument> {
-  final Sink<TgpcdxChcTextureGroup> _sink;
-
-  _XmlTgpcdxDecoderSink(this._sink);
-
-  @override
-  void add(
-    XmlDocument data,
-  ) {
-    _sink.add(TgpcdxChcTextureGroup.fromXmlElement(data.rootElement));
-  }
-
-  @override
-  void close() {
-    _sink.close();
-  }
 }

@@ -26,40 +26,4 @@ class XmlTgpcdxEncoder extends Converter<TgpcdxChcTextureGroup, XmlDocument> {
       ],
     );
   }
-
-  @override
-  Sink<TgpcdxChcTextureGroup> startChunkedConversion(
-    Sink<XmlDocument> sink,
-  ) {
-    return _XmlTgpcdxEncoderSink(sink);
-  }
-}
-
-class _XmlTgpcdxEncoderSink implements Sink<TgpcdxChcTextureGroup> {
-  final Sink<XmlDocument> _sink;
-
-  _XmlTgpcdxEncoderSink(this._sink);
-
-  @override
-  void add(
-    TgpcdxChcTextureGroup data,
-  ) {
-    _sink.add(
-      XmlDocument(
-        [
-          XmlDeclaration()
-            ..version = '1.0'
-            ..encoding = 'utf-8',
-          data.toXmlElement(
-            namespaces: XmlTgpcdxEncoder._namespaces,
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void close() {
-    _sink.close();
-  }
 }

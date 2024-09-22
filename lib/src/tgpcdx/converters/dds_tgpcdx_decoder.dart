@@ -58,206 +58,150 @@ class DdsTgpcdxDecoder extends Converter<Dds, TgpcdxChcTextureGroup> {
     );
   }
 
-  @override
-  Sink<Dds> startChunkedConversion(
-    Sink<TgpcdxChcTextureGroup> sink,
-  ) {
-    return _DdsTgpcdxDecoderSink(
-      sink,
-      chcTextureName: chcTextureName,
+  Iterable<TgpcdxChcImageDx> _getChcImageDxs(
+    Dds dds,
+    Random random,
+  ) sync* {
+    final format = _getTextureFormat(
+      dds.header.pixelFormat.flags,
+      dxgiFormat: dds.header10?.dxgiFormat,
+      fourCc: dds.header.pixelFormat.fourCc,
     );
-  }
-}
 
-class _DdsTgpcdxDecoderSink implements Sink<Dds> {
-  final String chcTextureName;
+    if (dds.header.caps & DdsCaps.mipMap != 0x0) {
+      if (dds.header.flags & DdsHeaderFlags.mipMapCount == 0x0) {
+        throw DdsHeaderFlagsInvalidException(
+          'The mipmap count header flag is required when the texture is mipmapped',
+          dds.header.flags,
+        );
+      }
 
-  final Sink<TgpcdxChcTextureGroup> _sink;
+      final mipMapCount = dds.header.mipMapCount;
+      if (mipMapCount == null) {
+        throw DdsMipMapCountRequiredException(
+          'The mipmap count is required when the texture is mipmapped',
+        );
+      }
 
-  _DdsTgpcdxDecoderSink(
-    this._sink, {
-    required this.chcTextureName,
-  });
+      var offset = 0;
+      var width = dds.header.width;
+      var height = dds.header.height;
 
-  @override
-  void add(
-    Dds data,
-  ) {
-    final random = Random();
+      for (var i = 0; i < mipMapCount; i++) {
+        final size = _getLayerSize(
+          format,
+          width,
+          height,
+          rgbBitCount: dds.header.pixelFormat.rgbBitCount,
+        );
 
-    _sink.add(
-      TgpcdxChcTextureGroup(
-        id: random.nextInt(4294967295) + 1,
-        texture: TgpcdxTexture(
-          chcTexture: TgpcdxChcTexture(
-            id: random.nextInt(4294967295) + 1,
-            width: data.header.width,
-            height: data.header.height,
-            name: chcTextureName,
-            data: TgpcdxData(
-              chcTextureData: TgpcdxChcTextureData(
-                id: random.nextInt(4294967295) + 1,
-                mip: TgpcdxMip(
-                  chcImageDxs: _getChcImageDxs(data, random).toList(),
-                ),
-                palette: null,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+        yield TgpcdxChcImageDx(
+          id: random.nextInt(4294967295) + 1,
+          format: format,
+          isSwizzled: false,
+          width: width,
+          height: height,
+          blob: dds.data.sublist(offset, offset + size),
+        );
 
-  @override
-  void close() {
-    _sink.close();
-  }
-}
+        if (width == 1 && height == 1) {
+          break;
+        }
 
-Iterable<TgpcdxChcImageDx> _getChcImageDxs(
-  Dds dds,
-  Random random,
-) sync* {
-  final format = _getTextureFormat(
-    dds.header.pixelFormat.flags,
-    dxgiFormat: dds.header10?.dxgiFormat,
-    fourCc: dds.header.pixelFormat.fourCc,
-  );
-
-  if (dds.header.caps & DdsCaps.mipMap != 0x0) {
-    if (dds.header.flags & DdsHeaderFlags.mipMapCount == 0x0) {
-      throw DdsHeaderFlagsInvalidException(
-        'The mipmap count header flag is required when the texture is mipmapped',
-        dds.header.flags,
-      );
-    }
-
-    final mipMapCount = dds.header.mipMapCount;
-    if (mipMapCount == null) {
-      throw DdsMipMapCountRequiredException(
-        'The mipmap count is required when the texture is mipmapped',
-      );
-    }
-
-    var offset = 0;
-    var width = dds.header.width;
-    var height = dds.header.height;
-
-    for (var i = 0; i < mipMapCount; i++) {
-      final size = _getLayerSize(
-        format,
-        width,
-        height,
-        rgbBitCount: dds.header.pixelFormat.rgbBitCount,
-      );
-
+        offset += size;
+        width = max<int>(1, width ~/ 2);
+        height = max<int>(1, height ~/ 2);
+      }
+    } else {
       yield TgpcdxChcImageDx(
         id: random.nextInt(4294967295) + 1,
         format: format,
         isSwizzled: false,
-        width: width,
-        height: height,
-        blob: dds.data.sublist(offset, offset + size),
+        width: dds.header.width,
+        height: dds.header.height,
+        blob: dds.data,
       );
-
-      if (width == 1 && height == 1) {
-        break;
-      }
-
-      offset += size;
-      width = max<int>(1, width ~/ 2);
-      height = max<int>(1, height ~/ 2);
     }
-  } else {
-    yield TgpcdxChcImageDx(
-      id: random.nextInt(4294967295) + 1,
-      format: format,
-      isSwizzled: false,
-      width: dds.header.width,
-      height: dds.header.height,
-      blob: dds.data,
-    );
   }
-}
 
-int _getCompressionBlockSize(
-  String format,
-) {
-  // https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-file-layout-for-textures
-  switch (format) {
-    case TgpcdxTextureFormats.compressed:
-      return 8;
-    case TgpcdxTextureFormats.compressedExplicitAlpha:
-    case TgpcdxTextureFormats.compressedInterpolatedAlpha:
-      return 16;
-    default:
-      throw TgpcdxTextureFormatInvalidException(null, format);
-  }
-}
-
-int _getLayerSize(
-  String format,
-  int width,
-  int height, {
-  int? rgbBitCount,
-}) {
-  // https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-file-layout-for-textures
-  switch (format) {
-    case TgpcdxTextureFormats.col888:
-    case TgpcdxTextureFormats.cola8888:
-      if (rgbBitCount == null) {
-        throw DdsRgbBitCountRequiredException(
-          'The rgb bit count is required when the texture format is ${TgpcdxTextureFormats.col888} or ${TgpcdxTextureFormats.cola8888}',
-        );
-      }
-
-      final pitch = (width * rgbBitCount + 7) ~/ 8;
-
-      return pitch * height;
-    case TgpcdxTextureFormats.compressed:
-    case TgpcdxTextureFormats.compressedExplicitAlpha:
-    case TgpcdxTextureFormats.compressedInterpolatedAlpha:
-      return max<int>(1, (width + 3) ~/ 4) *
-          max<int>(1, (height + 3) ~/ 4) *
-          _getCompressionBlockSize(format);
-    default:
-      throw TgpcdxTextureFormatInvalidException(null, format);
-  }
-}
-
-String _getTextureFormat(
-  int pixelFormatFlags, {
-  int? dxgiFormat,
-  int? fourCc,
-}) {
-  if (pixelFormatFlags & DdsPixelFormatFlags.fourCc != 0x0) {
-    switch (fourCc) {
-      case DdsD3dFormats.dxt1:
-        return TgpcdxTextureFormats.compressed;
-      case DdsD3dFormats.dxt2:
-        return TgpcdxTextureFormats.compressedExplicitAlpha;
-      case DdsD3dFormats.dxt3:
-        return TgpcdxTextureFormats.compressedInterpolatedAlpha;
-      case DdsD3dFormats.dx10:
-        switch (dxgiFormat) {
-          case DdsDxgiFormats.bc1Unorm:
-            return TgpcdxTextureFormats.compressed;
-          case DdsDxgiFormats.bc2Unorm:
-            return TgpcdxTextureFormats.compressedExplicitAlpha;
-          case DdsDxgiFormats.bc3Unorm:
-            return TgpcdxTextureFormats.compressedInterpolatedAlpha;
-          default:
-            throw DdsDxgiFormatInvalid(null, dxgiFormat);
-        }
+  int _getCompressionBlockSize(
+    String format,
+  ) {
+    // https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-file-layout-for-textures
+    switch (format) {
+      case TgpcdxTextureFormats.compressed:
+        return 8;
+      case TgpcdxTextureFormats.compressedExplicitAlpha:
+      case TgpcdxTextureFormats.compressedInterpolatedAlpha:
+        return 16;
       default:
-        throw DdsFourCcInvalidException(null, fourCc);
+        throw TgpcdxTextureFormatInvalidException(null, format);
     }
   }
 
-  if (pixelFormatFlags & DdsPixelFormatFlags.alphaPixels != 0x0) {
-    return TgpcdxTextureFormats.cola8888;
+  int _getLayerSize(
+    String format,
+    int width,
+    int height, {
+    int? rgbBitCount,
+  }) {
+    // https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-file-layout-for-textures
+    switch (format) {
+      case TgpcdxTextureFormats.col888:
+      case TgpcdxTextureFormats.cola8888:
+        if (rgbBitCount == null) {
+          throw DdsRgbBitCountRequiredException(
+            'The rgb bit count is required when the texture format is ${TgpcdxTextureFormats.col888} or ${TgpcdxTextureFormats.cola8888}',
+          );
+        }
+
+        final pitch = (width * rgbBitCount + 7) ~/ 8;
+
+        return pitch * height;
+      case TgpcdxTextureFormats.compressed:
+      case TgpcdxTextureFormats.compressedExplicitAlpha:
+      case TgpcdxTextureFormats.compressedInterpolatedAlpha:
+        return max<int>(1, (width + 3) ~/ 4) *
+            max<int>(1, (height + 3) ~/ 4) *
+            _getCompressionBlockSize(format);
+      default:
+        throw TgpcdxTextureFormatInvalidException(null, format);
+    }
   }
 
-  return TgpcdxTextureFormats.col888;
+  String _getTextureFormat(
+    int pixelFormatFlags, {
+    int? dxgiFormat,
+    int? fourCc,
+  }) {
+    if (pixelFormatFlags & DdsPixelFormatFlags.fourCc != 0x0) {
+      switch (fourCc) {
+        case DdsD3dFormats.dxt1:
+          return TgpcdxTextureFormats.compressed;
+        case DdsD3dFormats.dxt2:
+          return TgpcdxTextureFormats.compressedExplicitAlpha;
+        case DdsD3dFormats.dxt3:
+          return TgpcdxTextureFormats.compressedInterpolatedAlpha;
+        case DdsD3dFormats.dx10:
+          switch (dxgiFormat) {
+            case DdsDxgiFormats.bc1Unorm:
+              return TgpcdxTextureFormats.compressed;
+            case DdsDxgiFormats.bc2Unorm:
+              return TgpcdxTextureFormats.compressedExplicitAlpha;
+            case DdsDxgiFormats.bc3Unorm:
+              return TgpcdxTextureFormats.compressedInterpolatedAlpha;
+            default:
+              throw DdsDxgiFormatInvalid(null, dxgiFormat);
+          }
+        default:
+          throw DdsFourCcInvalidException(null, fourCc);
+      }
+    }
+
+    if (pixelFormatFlags & DdsPixelFormatFlags.alphaPixels != 0x0) {
+      return TgpcdxTextureFormats.cola8888;
+    }
+
+    return TgpcdxTextureFormats.col888;
+  }
 }
