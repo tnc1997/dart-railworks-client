@@ -53,7 +53,7 @@ class TgpcdxChcImageDx {
     namespace: RailWorksXmlNamespaces.delta,
     isSelfClosing: true,
   )
-  @TgpcdxBlobXmlConverter()
+  @RailWorksBlobXmlConverter()
   final List<int> blob;
 
   const TgpcdxChcImageDx({
