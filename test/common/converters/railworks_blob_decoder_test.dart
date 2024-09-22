@@ -1,4 +1,4 @@
-import 'package:railworks_client/src/common/converters/railworks_blob_decoder.dart';
+import 'package:railworks_client/railworks_client.dart';
 import 'package:test/test.dart';
 
 void main() {
