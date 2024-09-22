@@ -10,8 +10,6 @@ import '../models/bin_opening_element.dart';
 import '../writers/bin_byte_writer.dart';
 import '../writers/bin_chunked_byte_writer.dart';
 
-const _prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
-
 /// A converter that encodes an [XmlDocument] to bytes.
 class BinEncoder extends Converter<XmlDocument, List<int>> {
   const BinEncoder();
@@ -22,11 +20,9 @@ class BinEncoder extends Converter<XmlDocument, List<int>> {
   ) {
     final sink = ByteAccumulatorSink();
 
-    final writer = BinChunkedByteWriter(sink);
-
-    writer.writeBytes(_prelude);
-
-    writer.writeXmlElement(input.rootElement);
+    BinChunkedByteWriter(sink)
+      ..writePrelude()
+      ..writeXmlElement(input.rootElement);
 
     sink.close();
 
@@ -43,24 +39,17 @@ class BinEncoder extends Converter<XmlDocument, List<int>> {
 
 class _BinEncoderSink implements Sink<XmlDocument> {
   final Sink<List<int>> _sink;
+  final BinByteWriter _writer;
 
-  _BinEncoderSink(this._sink);
+  _BinEncoderSink(this._sink) : _writer = BinChunkedByteWriter(_sink);
 
   @override
   void add(
     XmlDocument data,
   ) {
-    final sink = ByteAccumulatorSink();
-
-    final writer = BinChunkedByteWriter(sink);
-
-    writer.writeBytes(_prelude);
-
-    writer.writeXmlElement(data.rootElement);
-
-    sink.close();
-
-    _sink.add(sink.bytes);
+    _writer
+      ..writePrelude()
+      ..writeXmlElement(data.rootElement);
   }
 
   @override
@@ -70,6 +59,12 @@ class _BinEncoderSink implements Sink<XmlDocument> {
 }
 
 extension on BinByteWriter {
+  void writePrelude() {
+    const _prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
+
+    writeBytes(_prelude);
+  }
+
   void writeXmlElement(
     XmlElement element,
   ) {
