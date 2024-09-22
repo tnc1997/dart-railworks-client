@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../../common/writers/railworks_byte_writer.dart';
-import '../../common/writers/railworks_chunked_byte_writer.dart';
+import '../../common/byte_writers/railworks_byte_writer.dart';
+import '../../common/byte_writers/railworks_chunked_byte_writer.dart';
 import '../constants/dds_d3d_formats.dart';
 import '../exceptions/dds_header10_required_exception.dart';
 import '../models/dds.dart';

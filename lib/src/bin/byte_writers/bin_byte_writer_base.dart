@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../../common/byte_writers/railworks_byte_writer_base.dart';
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import '../../common/iterables/railworks_circular_buffer.dart';
-import '../../common/writers/railworks_byte_writer_base.dart';
 import '../exceptions/bin_element_invalid_exception.dart';
 import '../models/bin_blob_element.dart';
 import '../models/bin_closing_element.dart';

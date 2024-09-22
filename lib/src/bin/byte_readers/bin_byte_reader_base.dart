@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../../common/byte_readers/railworks_byte_reader_base.dart';
 import '../../common/constants/railworks_data_types.dart';
 import '../../common/exceptions/railworks_data_type_invalid_exception.dart';
 import '../../common/iterables/railworks_circular_buffer.dart';
-import '../../common/readers/railworks_stream_byte_reader_base.dart';
 import '../exceptions/bin_element_invalid_exception.dart';
 import '../models/bin_blob_element.dart';
 import '../models/bin_closing_element.dart';
@@ -15,47 +15,46 @@ import '../models/bin_opening_element.dart';
 import '../models/bin_reference_element.dart';
 import '../models/bin_undefined_element.dart';
 import '../models/bin_value_element.dart';
-import 'bin_stream_byte_reader.dart';
+import 'bin_byte_reader.dart';
 
-mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
-    implements BinStreamByteReader {
+mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
   final _elements = RailWorksCircularBuffer<BinElement>(0xff);
   final _strings = RailWorksCircularBuffer<String>(0xffff);
 
   @override
-  Future<BinElement> readElement() async {
-    final index = await readByte();
+  BinElement readElement() {
+    final index = readByte();
 
     if (index == 0xff) {
-      final type = await readByte();
+      final type = readByte();
 
       if (type == 0x41) {
-        return await _readMatrixElement();
+        return _readMatrixElement();
       } else if (type == 0x42) {
-        return await _readBlobElement();
+        return _readBlobElement();
       } else if (type == 0x43) {
-        return await _readUndefinedElement(5);
+        return _readUndefinedElement(5);
       } else if (type == 0x4e) {
-        return await _readNullElement();
+        return _readNullElement();
       } else if (type == 0x50) {
-        return await _readOpeningElement();
+        return _readOpeningElement();
       } else if (type == 0x52) {
-        return await _readReferenceElement();
+        return _readReferenceElement();
       } else if (type == 0x56) {
-        return await _readValueElement();
+        return _readValueElement();
       } else if (type == 0x70) {
-        return await _readClosingElement();
+        return _readClosingElement();
       } else {
         throw BinElementInvalidException();
       }
     }
 
-    return await _readCachedElement(index);
+    return _readCachedElement(index);
   }
 
-  Future<BinBlobElement> _readBlobElement() async {
-    final size = await readUint32(Endian.little);
-    final bytes = await readBytes(size);
+  BinBlobElement _readBlobElement() {
+    final size = readUint32(Endian.little);
+    final bytes = readBytes(size);
 
     final element = BinBlobElement(
       size: size,
@@ -67,13 +66,13 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<BinBlobElement> _readCachedBlobElement(
+  BinBlobElement _readCachedBlobElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinBlobElement;
 
-    final size = await readUint32(Endian.little);
-    final bytes = await readBytes(size);
+    final size = readUint32(Endian.little);
+    final bytes = readBytes(size);
 
     return element.copyWith(
       size: size,
@@ -81,44 +80,44 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     );
   }
 
-  Future<BinClosingElement> _readCachedClosingElement(
+  BinClosingElement _readCachedClosingElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinClosingElement;
 
     return element.copyWith();
   }
 
-  Future<BinElement> _readCachedElement(
+  BinElement _readCachedElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinElement;
 
     if (element is BinMatrixElement) {
-      return await _readCachedMatrixElement(index);
+      return _readCachedMatrixElement(index);
     } else if (element is BinBlobElement) {
-      return await _readCachedBlobElement(index);
+      return _readCachedBlobElement(index);
     } else if (element is BinNullElement) {
-      return await _readCachedNullElement(index);
+      return _readCachedNullElement(index);
     } else if (element is BinOpeningElement) {
-      return await _readCachedOpeningElement(index);
+      return _readCachedOpeningElement(index);
     } else if (element is BinReferenceElement) {
-      return await _readCachedReferenceElement(index);
+      return _readCachedReferenceElement(index);
     } else if (element is BinValueElement) {
-      return await _readCachedValueElement(index);
+      return _readCachedValueElement(index);
     } else if (element is BinClosingElement) {
-      return await _readCachedClosingElement(index);
+      return _readCachedClosingElement(index);
     } else {
       throw BinElementInvalidException(null, element);
     }
   }
 
-  Future<BinMatrixElement> _readCachedMatrixElement(
+  BinMatrixElement _readCachedMatrixElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinMatrixElement;
 
-    final numElements = await readByte();
+    final numElements = readByte();
 
     final elements = <Object>[];
     for (var i = 0; i < numElements; i++) {
@@ -131,21 +130,21 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     );
   }
 
-  Future<BinNullElement> _readCachedNullElement(
+  BinNullElement _readCachedNullElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinNullElement;
 
     return element.copyWith();
   }
 
-  Future<BinOpeningElement> _readCachedOpeningElement(
+  BinOpeningElement _readCachedOpeningElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinOpeningElement;
 
-    final id = await readUint32(Endian.little);
-    final numChildren = await readUint32(Endian.little);
+    final id = readUint32(Endian.little);
+    final numChildren = readUint32(Endian.little);
 
     return element.copyWith(
       id: id,
@@ -153,32 +152,32 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     );
   }
 
-  Future<BinReferenceElement> _readCachedReferenceElement(
+  BinReferenceElement _readCachedReferenceElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinReferenceElement;
 
-    final value = await readUint32(Endian.little);
+    final value = readUint32(Endian.little);
 
     return element.copyWith(
       value: value,
     );
   }
 
-  Future<BinValueElement> _readCachedValueElement(
+  BinValueElement _readCachedValueElement(
     int index,
-  ) async {
+  ) {
     final element = _elements[index] as BinValueElement;
 
-    final value = await _readValue(element.type);
+    final value = _readValue(element.type);
 
     return element.copyWith(
       value: value,
     );
   }
 
-  Future<BinClosingElement> _readClosingElement() async {
-    final name = await _readString();
+  BinClosingElement _readClosingElement() {
+    final name = _readString();
 
     final element = BinClosingElement(
       name: name,
@@ -189,14 +188,14 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<BinMatrixElement> _readMatrixElement() async {
-    final name = await _readString();
-    final elementType = await _readString();
-    final numElements = await readByte();
+  BinMatrixElement _readMatrixElement() {
+    final name = _readString();
+    final elementType = _readString();
+    final numElements = readByte();
 
     final elements = <Object>[];
     for (var i = 0; i < numElements; i++) {
-      elements.add(await _readValue(elementType));
+      elements.add(_readValue(elementType));
     }
 
     final element = BinMatrixElement(
@@ -219,10 +218,10 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<BinOpeningElement> _readOpeningElement() async {
-    final name = await _readString();
-    final id = await readUint32(Endian.little);
-    final numChildren = await readUint32(Endian.little);
+  BinOpeningElement _readOpeningElement() {
+    final name = _readString();
+    final id = readUint32(Endian.little);
+    final numChildren = readUint32(Endian.little);
 
     final element = BinOpeningElement(
       name: name,
@@ -235,9 +234,9 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<BinReferenceElement> _readReferenceElement() async {
-    final name = await _readString();
-    final value = await readUint32(Endian.little);
+  BinReferenceElement _readReferenceElement() {
+    final name = _readString();
+    final value = readUint32(Endian.little);
 
     final element = BinReferenceElement(
       name: name,
@@ -249,12 +248,12 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<String> _readString() async {
-    final index = await readUint16(Endian.little);
+  String _readString() {
+    final index = readUint16(Endian.little);
 
     if (index == 0xffff) {
-      final length = await readUint32(Endian.little);
-      final codeUnits = await readBytes(length);
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
 
       final string = utf8.decode(codeUnits).replaceAll('::', '-');
 
@@ -266,10 +265,10 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     }
   }
 
-  Future<BinUndefinedElement> _readUndefinedElement(
+  BinUndefinedElement _readUndefinedElement(
     int length,
-  ) async {
-    final bytes = await readBytes(length);
+  ) {
+    final bytes = readBytes(length);
 
     final element = BinUndefinedElement(
       bytes: bytes,
@@ -280,41 +279,41 @@ mixin BinStreamByteReaderBase on RailWorksStreamByteReaderBase
     return element;
   }
 
-  Future<Object> _readValue(
+  Object _readValue(
     String dataType,
-  ) async {
+  ) {
     switch (dataType) {
       case RailWorksDataTypes.bool:
-        return await readBool();
+        return readBool();
       case RailWorksDataTypes.cDeltaString:
-        return await _readString();
+        return _readString();
       case RailWorksDataTypes.sfloat32:
-        return await readFloat32(Endian.little);
+        return readFloat32(Endian.little);
       case RailWorksDataTypes.sint8:
-        return await readInt8();
+        return readInt8();
       case RailWorksDataTypes.sint16:
-        return await readInt16(Endian.little);
+        return readInt16(Endian.little);
       case RailWorksDataTypes.sint32:
-        return await readInt32(Endian.little);
+        return readInt32(Endian.little);
       case RailWorksDataTypes.sint64:
-        return await readInt64(Endian.little);
+        return readInt64(Endian.little);
       case RailWorksDataTypes.suint8:
-        return await readUint8();
+        return readUint8();
       case RailWorksDataTypes.suint16:
-        return await readUint16(Endian.little);
+        return readUint16(Endian.little);
       case RailWorksDataTypes.suint32:
-        return await readUint32(Endian.little);
+        return readUint32(Endian.little);
       case RailWorksDataTypes.suint64:
-        return await readUint64(Endian.little);
+        return readUint64(Endian.little);
       default:
         throw RailWorksDataTypeInvalidException();
     }
   }
 
-  Future<BinValueElement> _readValueElement() async {
-    final name = await _readString();
-    final type = await _readString();
-    final value = await _readValue(type);
+  BinValueElement _readValueElement() {
+    final name = _readString();
+    final type = _readString();
+    final value = _readValue(type);
 
     final element = BinValueElement(
       name: name,

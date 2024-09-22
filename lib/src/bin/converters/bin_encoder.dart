@@ -4,11 +4,11 @@ import 'package:convert/convert.dart';
 import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_xml_namespaces.dart';
+import '../byte_writers/bin_byte_writer.dart';
+import '../byte_writers/bin_chunked_byte_writer.dart';
 import '../models/bin_closing_element.dart';
 import '../models/bin_element.dart';
 import '../models/bin_opening_element.dart';
-import '../writers/bin_byte_writer.dart';
-import '../writers/bin_chunked_byte_writer.dart';
 
 /// A converter that encodes an [XmlDocument] to bytes.
 class BinEncoder extends Converter<XmlDocument, List<int>> {

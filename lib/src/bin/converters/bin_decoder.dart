@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:xml/xml.dart';
 
 import '../../common/constants/railworks_xml_namespaces.dart';
+import '../byte_readers/bin_byte_reader.dart';
+import '../byte_readers/bin_stream_byte_reader.dart';
+import '../byte_readers/bin_unchunked_byte_reader.dart';
 import '../exceptions/bin_element_invalid_exception.dart';
 import '../exceptions/bin_prelude_invalid_exception.dart';
 import '../models/bin_closing_element.dart';
 import '../models/bin_opening_element.dart';
 import '../models/bin_undefined_element.dart';
-import '../readers/bin_byte_reader.dart';
-import '../readers/bin_stream_byte_reader.dart';
-import '../readers/bin_unchunked_byte_reader.dart';
 
 const _namespaces = {RailWorksXmlNamespaces.delta: 'd'};
 
