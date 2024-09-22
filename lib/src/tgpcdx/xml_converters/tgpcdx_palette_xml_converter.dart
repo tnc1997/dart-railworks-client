@@ -1,6 +1,8 @@
 import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
+import '../../common/constants/railworks_xml_namespaces.dart';
+
 class TgpcdxPaletteXmlConverter extends annotation.XmlConverter<dynamic> {
   const TgpcdxPaletteXmlConverter();
 
@@ -12,7 +14,7 @@ class TgpcdxPaletteXmlConverter extends annotation.XmlConverter<dynamic> {
   }) {
     builder.element(
       'nil',
-      namespace: namespaces['http://www.kuju.com/TnT/2003/Delta'],
+      namespace: namespaces[RailWorksXmlNamespaces.delta],
       isSelfClosing: true,
     );
   }
@@ -41,7 +43,7 @@ class TgpcdxPaletteXmlConverter extends annotation.XmlConverter<dynamic> {
       XmlElement(
         XmlName(
           'nil',
-          namespaces['http://www.kuju.com/TnT/2003/Delta'],
+          namespaces[RailWorksXmlNamespaces.delta],
         ),
         [],
         [],
