@@ -2,8 +2,8 @@ import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
 import '../../common/constants/railworks_xml_namespaces.dart';
-import '../xml_converters/tgpcdx_int_typed_xml_converter.dart';
-import '../xml_converters/tgpcdx_string_typed_xml_converter.dart';
+import '../../common/xml_converters/railworks_int_value_xml_converter.dart';
+import '../../common/xml_converters/railworks_string_value_xml_converter.dart';
 import 'tgpcdx_data.dart';
 
 part 'tgpcdx_chc_texture.g.dart';
@@ -23,21 +23,21 @@ class TgpcdxChcTexture {
     name: 'Width',
     isSelfClosing: false,
   )
-  @TgpcdxSuint32TypedXmlConverter()
+  @RailWorksSuint32ValueXmlConverter()
   final int width;
 
   @annotation.XmlElement(
     name: 'Height',
     isSelfClosing: false,
   )
-  @TgpcdxSuint32TypedXmlConverter()
+  @RailWorksSuint32ValueXmlConverter()
   final int height;
 
   @annotation.XmlElement(
     name: 'Name',
     isSelfClosing: false,
   )
-  @TgpcdxStringTypedXmlConverter()
+  @RailWorksStringValueXmlConverter()
   final String name;
 
   @annotation.XmlElement(

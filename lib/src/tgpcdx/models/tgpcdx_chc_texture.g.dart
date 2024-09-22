@@ -16,19 +16,19 @@ void _$TgpcdxChcTextureBuildXmlChildren(
   final width = instance.width;
   final widthSerialized = width;
   builder.element('Width', isSelfClosing: false, nest: () {
-    const TgpcdxSuint32TypedXmlConverter()
+    const RailWorksSuint32ValueXmlConverter()
         .buildXmlChildren(widthSerialized, builder, namespaces: namespaces);
   });
   final height = instance.height;
   final heightSerialized = height;
   builder.element('Height', isSelfClosing: false, nest: () {
-    const TgpcdxSuint32TypedXmlConverter()
+    const RailWorksSuint32ValueXmlConverter()
         .buildXmlChildren(heightSerialized, builder, namespaces: namespaces);
   });
   final name = instance.name;
   final nameSerialized = name;
   builder.element('Name', isSelfClosing: false, nest: () {
-    const TgpcdxStringTypedXmlConverter()
+    const RailWorksStringValueXmlConverter()
         .buildXmlChildren(nameSerialized, builder, namespaces: namespaces);
   });
   final data = instance.data;
@@ -55,9 +55,9 @@ TgpcdxChcTexture _$TgpcdxChcTextureFromXmlElement(XmlElement element) {
   final data = element.getElement('Data')!;
   return TgpcdxChcTexture(
       id: int.parse(id),
-      width: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(width),
-      height: const TgpcdxSuint32TypedXmlConverter().fromXmlElement(height),
-      name: const TgpcdxStringTypedXmlConverter().fromXmlElement(name),
+      width: const RailWorksSuint32ValueXmlConverter().fromXmlElement(width),
+      height: const RailWorksSuint32ValueXmlConverter().fromXmlElement(height),
+      name: const RailWorksStringValueXmlConverter().fromXmlElement(name),
       data: TgpcdxData.fromXmlElement(data));
 }
 
@@ -80,9 +80,9 @@ List<XmlNode> _$TgpcdxChcTextureToXmlChildren(TgpcdxChcTexture instance,
   final widthSerialized = width;
   final widthConstructed = XmlElement(
       XmlName('Width'),
-      const TgpcdxSuint32TypedXmlConverter()
+      const RailWorksSuint32ValueXmlConverter()
           .toXmlAttributes(widthSerialized, namespaces: namespaces),
-      const TgpcdxSuint32TypedXmlConverter()
+      const RailWorksSuint32ValueXmlConverter()
           .toXmlChildren(widthSerialized, namespaces: namespaces),
       false);
   children.add(widthConstructed);
@@ -90,9 +90,9 @@ List<XmlNode> _$TgpcdxChcTextureToXmlChildren(TgpcdxChcTexture instance,
   final heightSerialized = height;
   final heightConstructed = XmlElement(
       XmlName('Height'),
-      const TgpcdxSuint32TypedXmlConverter()
+      const RailWorksSuint32ValueXmlConverter()
           .toXmlAttributes(heightSerialized, namespaces: namespaces),
-      const TgpcdxSuint32TypedXmlConverter()
+      const RailWorksSuint32ValueXmlConverter()
           .toXmlChildren(heightSerialized, namespaces: namespaces),
       false);
   children.add(heightConstructed);
@@ -100,9 +100,9 @@ List<XmlNode> _$TgpcdxChcTextureToXmlChildren(TgpcdxChcTexture instance,
   final nameSerialized = name;
   final nameConstructed = XmlElement(
       XmlName('Name'),
-      const TgpcdxStringTypedXmlConverter()
+      const RailWorksStringValueXmlConverter()
           .toXmlAttributes(nameSerialized, namespaces: namespaces),
-      const TgpcdxStringTypedXmlConverter()
+      const RailWorksStringValueXmlConverter()
           .toXmlChildren(nameSerialized, namespaces: namespaces),
       false);
   children.add(nameConstructed);

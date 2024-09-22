@@ -16,26 +16,26 @@ void _$TgpcdxChcImageDxBuildXmlChildren(
   final format = instance.format;
   final formatSerialized = format;
   builder.element('Format', isSelfClosing: false, nest: () {
-    const TgpcdxStringTypedXmlConverter()
+    const RailWorksStringValueXmlConverter()
         .buildXmlChildren(formatSerialized, builder, namespaces: namespaces);
   });
   final isSwizzled = instance.isSwizzled;
   final isSwizzledSerialized = isSwizzled;
   builder.element('IsSwizzled', isSelfClosing: false, nest: () {
-    const TgpcdxBoolTypedXmlConverter().buildXmlChildren(
+    const RailWorksBoolValueXmlConverter().buildXmlChildren(
         isSwizzledSerialized, builder,
         namespaces: namespaces);
   });
   final width = instance.width;
   final widthSerialized = width;
   builder.element('Width', isSelfClosing: false, nest: () {
-    const TgpcdxSuint16TypedXmlConverter()
+    const RailWorksSuint16ValueXmlConverter()
         .buildXmlChildren(widthSerialized, builder, namespaces: namespaces);
   });
   final height = instance.height;
   final heightSerialized = height;
   builder.element('Height', isSelfClosing: false, nest: () {
-    const TgpcdxSuint16TypedXmlConverter()
+    const RailWorksSuint16ValueXmlConverter()
         .buildXmlChildren(heightSerialized, builder, namespaces: namespaces);
   });
   final blob = instance.blob;
@@ -43,7 +43,7 @@ void _$TgpcdxChcImageDxBuildXmlChildren(
   builder.element('blob',
       namespace: 'http://www.kuju.com/TnT/2003/Delta',
       isSelfClosing: true, nest: () {
-    const TgpcdxBlobXmlConverter()
+    const RailWorksBlobXmlConverter()
         .buildXmlChildren(blobSerialized, builder, namespaces: namespaces);
   });
 }
@@ -67,12 +67,12 @@ TgpcdxChcImageDx _$TgpcdxChcImageDxFromXmlElement(XmlElement element) {
       namespace: 'http://www.kuju.com/TnT/2003/Delta')!;
   return TgpcdxChcImageDx(
       id: int.parse(id),
-      format: const TgpcdxStringTypedXmlConverter().fromXmlElement(format),
+      format: const RailWorksStringValueXmlConverter().fromXmlElement(format),
       isSwizzled:
-          const TgpcdxBoolTypedXmlConverter().fromXmlElement(isSwizzled),
-      width: const TgpcdxSuint16TypedXmlConverter().fromXmlElement(width),
-      height: const TgpcdxSuint16TypedXmlConverter().fromXmlElement(height),
-      blob: const TgpcdxBlobXmlConverter().fromXmlElement(blob));
+          const RailWorksBoolValueXmlConverter().fromXmlElement(isSwizzled),
+      width: const RailWorksSuint16ValueXmlConverter().fromXmlElement(width),
+      height: const RailWorksSuint16ValueXmlConverter().fromXmlElement(height),
+      blob: const RailWorksBlobXmlConverter().fromXmlElement(blob));
 }
 
 List<XmlAttribute> _$TgpcdxChcImageDxToXmlAttributes(TgpcdxChcImageDx instance,
@@ -94,9 +94,9 @@ List<XmlNode> _$TgpcdxChcImageDxToXmlChildren(TgpcdxChcImageDx instance,
   final formatSerialized = format;
   final formatConstructed = XmlElement(
       XmlName('Format'),
-      const TgpcdxStringTypedXmlConverter()
+      const RailWorksStringValueXmlConverter()
           .toXmlAttributes(formatSerialized, namespaces: namespaces),
-      const TgpcdxStringTypedXmlConverter()
+      const RailWorksStringValueXmlConverter()
           .toXmlChildren(formatSerialized, namespaces: namespaces),
       false);
   children.add(formatConstructed);
@@ -104,9 +104,9 @@ List<XmlNode> _$TgpcdxChcImageDxToXmlChildren(TgpcdxChcImageDx instance,
   final isSwizzledSerialized = isSwizzled;
   final isSwizzledConstructed = XmlElement(
       XmlName('IsSwizzled'),
-      const TgpcdxBoolTypedXmlConverter()
+      const RailWorksBoolValueXmlConverter()
           .toXmlAttributes(isSwizzledSerialized, namespaces: namespaces),
-      const TgpcdxBoolTypedXmlConverter()
+      const RailWorksBoolValueXmlConverter()
           .toXmlChildren(isSwizzledSerialized, namespaces: namespaces),
       false);
   children.add(isSwizzledConstructed);
@@ -114,9 +114,9 @@ List<XmlNode> _$TgpcdxChcImageDxToXmlChildren(TgpcdxChcImageDx instance,
   final widthSerialized = width;
   final widthConstructed = XmlElement(
       XmlName('Width'),
-      const TgpcdxSuint16TypedXmlConverter()
+      const RailWorksSuint16ValueXmlConverter()
           .toXmlAttributes(widthSerialized, namespaces: namespaces),
-      const TgpcdxSuint16TypedXmlConverter()
+      const RailWorksSuint16ValueXmlConverter()
           .toXmlChildren(widthSerialized, namespaces: namespaces),
       false);
   children.add(widthConstructed);
@@ -124,9 +124,9 @@ List<XmlNode> _$TgpcdxChcImageDxToXmlChildren(TgpcdxChcImageDx instance,
   final heightSerialized = height;
   final heightConstructed = XmlElement(
       XmlName('Height'),
-      const TgpcdxSuint16TypedXmlConverter()
+      const RailWorksSuint16ValueXmlConverter()
           .toXmlAttributes(heightSerialized, namespaces: namespaces),
-      const TgpcdxSuint16TypedXmlConverter()
+      const RailWorksSuint16ValueXmlConverter()
           .toXmlChildren(heightSerialized, namespaces: namespaces),
       false);
   children.add(heightConstructed);
@@ -134,9 +134,9 @@ List<XmlNode> _$TgpcdxChcImageDxToXmlChildren(TgpcdxChcImageDx instance,
   final blobSerialized = blob;
   final blobConstructed = XmlElement(
       XmlName('blob', namespaces['http://www.kuju.com/TnT/2003/Delta']),
-      const TgpcdxBlobXmlConverter()
+      const RailWorksBlobXmlConverter()
           .toXmlAttributes(blobSerialized, namespaces: namespaces),
-      const TgpcdxBlobXmlConverter()
+      const RailWorksBlobXmlConverter()
           .toXmlChildren(blobSerialized, namespaces: namespaces),
       true);
   children.add(blobConstructed);

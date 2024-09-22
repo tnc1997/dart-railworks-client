@@ -2,10 +2,10 @@ import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
 import '../../common/constants/railworks_xml_namespaces.dart';
-import '../xml_converters/tgpcdx_blob_xml_converter.dart';
-import '../xml_converters/tgpcdx_bool_typed_xml_converter.dart';
-import '../xml_converters/tgpcdx_int_typed_xml_converter.dart';
-import '../xml_converters/tgpcdx_string_typed_xml_converter.dart';
+import '../../common/xml_converters/railworks_blob_xml_converter.dart';
+import '../../common/xml_converters/railworks_bool_value_xml_converter.dart';
+import '../../common/xml_converters/railworks_int_value_xml_converter.dart';
+import '../../common/xml_converters/railworks_string_value_xml_converter.dart';
 
 part 'tgpcdx_chc_image_dx.g.dart';
 
@@ -24,28 +24,28 @@ class TgpcdxChcImageDx {
     name: 'Format',
     isSelfClosing: false,
   )
-  @TgpcdxStringTypedXmlConverter()
+  @RailWorksStringValueXmlConverter()
   final String format;
 
   @annotation.XmlElement(
     name: 'IsSwizzled',
     isSelfClosing: false,
   )
-  @TgpcdxBoolTypedXmlConverter()
+  @RailWorksBoolValueXmlConverter()
   final bool isSwizzled;
 
   @annotation.XmlElement(
     name: 'Width',
     isSelfClosing: false,
   )
-  @TgpcdxSuint16TypedXmlConverter()
+  @RailWorksSuint16ValueXmlConverter()
   final int width;
 
   @annotation.XmlElement(
     name: 'Height',
     isSelfClosing: false,
   )
-  @TgpcdxSuint16TypedXmlConverter()
+  @RailWorksSuint16ValueXmlConverter()
   final int height;
 
   @annotation.XmlElement(

@@ -1,11 +1,13 @@
 import 'package:xml/xml.dart';
 import 'package:xml_annotation/xml_annotation.dart' as annotation;
 
-abstract class TgpcdxTypedXmlConverter<T>
+import '../constants/railworks_xml_namespaces.dart';
+
+abstract class RailWorksValueXmlConverter<T>
     implements annotation.XmlConverter<T> {
   final String type;
 
-  const TgpcdxTypedXmlConverter({
+  const RailWorksValueXmlConverter({
     required this.type,
   });
 
@@ -18,7 +20,7 @@ abstract class TgpcdxTypedXmlConverter<T>
     builder.attribute(
       'type',
       type,
-      namespace: namespaces['http://www.kuju.com/TnT/2003/Delta'],
+      namespace: namespaces[RailWorksXmlNamespaces.delta],
     );
 
     builder.text(
@@ -27,7 +29,7 @@ abstract class TgpcdxTypedXmlConverter<T>
   }
 
   T deserialize(
-    String text,
+    String innerText,
   );
 
   @override
@@ -50,7 +52,7 @@ abstract class TgpcdxTypedXmlConverter<T>
       XmlAttribute(
         XmlName(
           'type',
-          namespaces['http://www.kuju.com/TnT/2003/Delta'],
+          namespaces[RailWorksXmlNamespaces.delta],
         ),
         type,
       ),
