@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../../common/writers/byte_writer.dart';
+import '../../common/writers/chunked_byte_writer.dart';
 import '../constants/dds_d3d_formats.dart';
 import '../exceptions/dds_header10_required_exception.dart';
 import '../models/dds.dart';
@@ -75,42 +77,46 @@ class DdsEncoder extends Converter<Dds, List<int>> {
 
 class _DdsEncoderSink implements Sink<Dds> {
   final Sink<List<int>> _sink;
+  final ByteWriter _writer;
 
-  _DdsEncoderSink(this._sink);
+  _DdsEncoderSink(this._sink) : _writer = ChunkedByteWriter(_sink);
 
   @override
   void add(
     Dds data,
   ) {
-    _add(data.magic);
+    final header = data.header;
+    final pixelFormat = header.pixelFormat;
 
-    _add(data.header.size);
-    _add(data.header.flags);
-    _add(data.header.height);
-    _add(data.header.width);
-    _add(data.header.pitchOrLinearSize);
-    _add(data.header.depth ?? 0x0);
-    _add(data.header.mipMapCount ?? 0x0);
+    _writer.writeUint32(data.magic, Endian.little);
 
-    _sink.add(Uint8List(4 * 11));
+    _writer.writeUint32(header.size, Endian.little);
+    _writer.writeUint32(header.flags, Endian.little);
+    _writer.writeUint32(header.height, Endian.little);
+    _writer.writeUint32(header.width, Endian.little);
+    _writer.writeUint32(header.pitchOrLinearSize, Endian.little);
+    _writer.writeUint32(header.depth ?? 0x0, Endian.little);
+    _writer.writeUint32(header.mipMapCount ?? 0x0, Endian.little);
 
-    _add(data.header.pixelFormat.size);
-    _add(data.header.pixelFormat.flags);
-    _add(data.header.pixelFormat.fourCc ?? 0x0);
-    _add(data.header.pixelFormat.rgbBitCount ?? 0x0);
-    _add(data.header.pixelFormat.rBitMask ?? 0x0);
-    _add(data.header.pixelFormat.gBitMask ?? 0x0);
-    _add(data.header.pixelFormat.bBitMask ?? 0x0);
-    _add(data.header.pixelFormat.aBitMask ?? 0x0);
+    _writer.writeBytes(List.filled(4 * 11, 0x0));
 
-    _add(data.header.caps);
-    _add(data.header.caps2);
-    _add(data.header.caps3);
-    _add(data.header.caps4);
+    _writer.writeUint32(pixelFormat.size, Endian.little);
+    _writer.writeUint32(pixelFormat.flags, Endian.little);
+    _writer.writeUint32(pixelFormat.fourCc ?? 0x0, Endian.little);
+    _writer.writeUint32(pixelFormat.rgbBitCount ?? 0x0, Endian.little);
+    _writer.writeUint32(pixelFormat.rBitMask ?? 0x0, Endian.little);
+    _writer.writeUint32(pixelFormat.gBitMask ?? 0x0, Endian.little);
+    _writer.writeUint32(pixelFormat.bBitMask ?? 0x0, Endian.little);
+    _writer.writeUint32(pixelFormat.aBitMask ?? 0x0, Endian.little);
 
-    _sink.add(Uint8List(4 * 1));
+    _writer.writeUint32(header.caps, Endian.little);
+    _writer.writeUint32(header.caps2, Endian.little);
+    _writer.writeUint32(header.caps3, Endian.little);
+    _writer.writeUint32(header.caps4, Endian.little);
 
-    if (data.header.pixelFormat.fourCc == DdsD3dFormats.dx10) {
+    _writer.writeBytes(List.filled(4 * 1, 0x0));
+
+    if (pixelFormat.fourCc == DdsD3dFormats.dx10) {
       final header10 = data.header10;
       if (header10 == null) {
         throw DdsHeader10RequiredException(
@@ -118,26 +124,18 @@ class _DdsEncoderSink implements Sink<Dds> {
         );
       }
 
-      _add(header10.dxgiFormat);
-      _add(header10.resourceDimension);
-      _add(header10.miscFlag);
-      _add(header10.arraySize);
-      _add(header10.miscFlags2);
+      _writer.writeUint32(header10.dxgiFormat, Endian.little);
+      _writer.writeUint32(header10.resourceDimension, Endian.little);
+      _writer.writeUint32(header10.miscFlag, Endian.little);
+      _writer.writeUint32(header10.arraySize, Endian.little);
+      _writer.writeUint32(header10.miscFlags2, Endian.little);
     }
 
-    _sink.add(Uint8List.fromList(data.data));
+    _writer.writeBytes(data.data);
   }
 
   @override
   void close() {
     _sink.close();
-  }
-
-  void _add(
-    int data,
-  ) {
-    final bytes = Uint8List(4);
-    bytes.buffer.asByteData().setUint32(0, data, Endian.little);
-    _sink.add(bytes);
   }
 }
