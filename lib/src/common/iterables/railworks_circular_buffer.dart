@@ -1,10 +1,10 @@
-class CircularBuffer<E> extends Iterable<E> {
+class RailWorksCircularBuffer<E> extends Iterable<E> {
   final List<E?> _buffer;
   int _start;
   int _end;
   int _length;
 
-  CircularBuffer(
+  RailWorksCircularBuffer(
     int length,
   )   : _buffer = List<E?>.filled(length, null),
         _start = 0,
@@ -186,11 +186,11 @@ class CircularBuffer<E> extends Iterable<E> {
 }
 
 class _CircularBufferIterator<E> implements Iterator<E> {
-  final CircularBuffer _buffer;
+  final RailWorksCircularBuffer _buffer;
   int _position;
 
   _CircularBufferIterator(
-    CircularBuffer buffer,
+    RailWorksCircularBuffer buffer,
   )   : _buffer = buffer,
         _position = -1;
 
