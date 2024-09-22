@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-abstract class StreamByteReader {
+abstract class RailWorksStreamByteReader {
   Future<bool> readBool();
 
   Future<int> readByte();

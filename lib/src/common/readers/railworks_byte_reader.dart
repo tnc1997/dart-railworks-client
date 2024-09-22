@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-abstract class ByteReader {
+abstract class RailWorksByteReader {
   bool readBool();
 
   int readByte();

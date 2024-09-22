@@ -1,7 +1,7 @@
-import '../../common/readers/unchunked_stream_byte_reader.dart';
+import '../../common/readers/railworks_unchunked_stream_byte_reader.dart';
 import 'bin_stream_byte_reader_base.dart';
 
-class BinUnchunkedStreamByteReader extends UnchunkedStreamByteReader
+class BinUnchunkedStreamByteReader extends RailWorksUnchunkedStreamByteReader
     with BinStreamByteReaderBase {
   BinUnchunkedStreamByteReader(
     Stream<int> bytes,

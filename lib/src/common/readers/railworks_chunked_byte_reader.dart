@@ -1,28 +1,27 @@
-import 'dart:async';
 import 'dart:typed_data';
 
-import '../exceptions/railworks_end_of_stream_exception.dart';
-import 'stream_byte_reader_base.dart';
+import '../exceptions/railworks_end_of_iterable_exception.dart';
+import 'railworks_byte_reader_base.dart';
 
-class ChunkedStreamByteReader with StreamByteReaderBase {
-  final StreamIterator<List<int>> _iterator;
+class RailWorksChunkedByteReader with RailWorksByteReaderBase {
+  final Iterator<List<int>> _iterator;
   List<int> _buffer;
   int _offset;
 
-  ChunkedStreamByteReader(
-    Stream<List<int>> bytes,
-  )   : _iterator = StreamIterator(bytes),
+  RailWorksChunkedByteReader(
+    Iterable<List<int>> bytes,
+  )   : _iterator = bytes.iterator,
         _buffer = [],
         _offset = 0;
 
   @override
-  Future<int> readByte() async {
+  int readByte() {
     if (_buffer.length == _offset) {
-      if (await _iterator.moveNext()) {
+      if (_iterator.moveNext()) {
         _buffer = _iterator.current;
         _offset = 0;
       } else {
-        throw RailWorksEndOfStreamException();
+        throw RailWorksEndOfIterableException();
       }
     }
 
@@ -30,16 +29,16 @@ class ChunkedStreamByteReader with StreamByteReaderBase {
   }
 
   @override
-  Future<Uint8List> readBytes(
+  Uint8List readBytes(
     int length,
-  ) async {
+  ) {
     RangeError.checkNotNegative(length, 'length');
 
     final builder = BytesBuilder();
 
     while (length > 0) {
       if (_buffer.length == _offset) {
-        if (await _iterator.moveNext()) {
+        if (_iterator.moveNext()) {
           _buffer = _iterator.current;
           _offset = 0;
         } else {

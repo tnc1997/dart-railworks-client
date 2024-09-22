@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../exceptions/railworks_end_of_stream_exception.dart';
-import 'stream_byte_reader_base.dart';
+import 'railworks_stream_byte_reader_base.dart';
 
-class UnchunkedStreamByteReader with StreamByteReaderBase {
+class RailWorksUnchunkedStreamByteReader with RailWorksStreamByteReaderBase {
   final StreamIterator<int> _iterator;
 
-  UnchunkedStreamByteReader(
+  RailWorksUnchunkedStreamByteReader(
     Stream<int> bytes,
   ) : _iterator = StreamIterator(bytes);
 

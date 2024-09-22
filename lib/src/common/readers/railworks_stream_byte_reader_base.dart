@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../exceptions/railworks_end_of_stream_exception.dart';
-import 'stream_byte_reader.dart';
+import 'railworks_stream_byte_reader.dart';
 
-mixin StreamByteReaderBase implements StreamByteReader {
+mixin RailWorksStreamByteReaderBase implements RailWorksStreamByteReader {
   @override
   Future<bool> readBool() async {
     return await readByte() == 1;

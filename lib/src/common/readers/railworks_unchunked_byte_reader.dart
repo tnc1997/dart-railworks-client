@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import '../exceptions/railworks_end_of_iterable_exception.dart';
-import 'byte_reader_base.dart';
+import 'railworks_byte_reader_base.dart';
 
-class UnchunkedByteReader with ByteReaderBase {
+class RailWorksUnchunkedByteReader with RailWorksByteReaderBase {
   final Iterator<int> _iterator;
 
-  UnchunkedByteReader(
+  RailWorksUnchunkedByteReader(
     Iterable<int> bytes,
   ) : _iterator = bytes.iterator;
 

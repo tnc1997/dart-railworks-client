@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
 import '../exceptions/railworks_end_of_iterable_exception.dart';
-import 'byte_reader.dart';
+import 'railworks_byte_reader.dart';
 
-mixin ByteReaderBase implements ByteReader {
+mixin RailWorksByteReaderBase implements RailWorksByteReader {
   @override
   bool readBool() {
     return readByte() == 1;
