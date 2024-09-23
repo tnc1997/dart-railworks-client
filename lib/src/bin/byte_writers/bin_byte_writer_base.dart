@@ -68,16 +68,35 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
   void _writeClosingElement(
     BinClosingElement element,
   ) {
-    _writeString(element.name);
+    _writeNameString(element.name);
 
     _elements.add(element);
+  }
+
+  void _writeDataTypeString(
+    String dataType,
+  ) {
+    final index = _strings.indexOf(dataType);
+
+    if (index == -1) {
+      writeUint16(0xffff, Endian.little);
+
+      final codeUnits = utf8.encode(dataType);
+
+      writeUint32(codeUnits.length, Endian.little);
+      writeBytes(codeUnits);
+
+      _strings.add(dataType);
+    } else {
+      writeUint16(index, Endian.little);
+    }
   }
 
   void _writeMatrixElement(
     BinMatrixElement element,
   ) {
-    _writeString(element.name);
-    _writeString(element.elementType);
+    _writeNameString(element.name);
+    _writeDataTypeString(element.elementType);
     writeByte(element.numElements);
 
     for (var i = 0; i < element.numElements; i++) {
@@ -85,6 +104,25 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
     }
 
     _elements.add(element);
+  }
+
+  void _writeNameString(
+    String name,
+  ) {
+    final index = _strings.indexOf(name);
+
+    if (index == -1) {
+      writeUint16(0xffff, Endian.little);
+
+      final codeUnits = utf8.encode(name.replaceAll('-', '::'));
+
+      writeUint32(codeUnits.length, Endian.little);
+      writeBytes(codeUnits);
+
+      _strings.add(name);
+    } else {
+      writeUint16(index, Endian.little);
+    }
   }
 
   void _writeNullElement(
@@ -96,7 +134,7 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
   void _writeOpeningElement(
     BinOpeningElement element,
   ) {
-    _writeString(element.name);
+    _writeNameString(element.name);
     writeUint32(element.id, Endian.little);
     writeUint32(element.numChildren, Endian.little);
 
@@ -106,29 +144,10 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
   void _writeReferenceElement(
     BinReferenceElement element,
   ) {
-    _writeString(element.name);
+    _writeNameString(element.name);
     writeUint32(element.value, Endian.little);
 
     _elements.add(element);
-  }
-
-  void _writeString(
-    String value,
-  ) {
-    final index = _strings.indexOf(value);
-
-    if (index == -1) {
-      writeUint16(0xffff, Endian.little);
-
-      final codeUnits = utf8.encode(value.replaceAll('-', '::'));
-
-      writeUint32(codeUnits.length, Endian.little);
-      writeBytes(codeUnits);
-
-      _strings.add(value);
-    } else {
-      writeUint16(index, Endian.little);
-    }
   }
 
   void _writeUndefinedElement(
@@ -147,7 +166,7 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
       case RailWorksDataTypes.bool:
         return writeBool(value as bool);
       case RailWorksDataTypes.cDeltaString:
-        return _writeString(value as String);
+        return _writeValueString(value as String);
       case RailWorksDataTypes.sfloat32:
         return writeFloat32(value as double, Endian.little);
       case RailWorksDataTypes.sint8:
@@ -174,10 +193,29 @@ mixin BinByteWriterBase on RailWorksByteWriterBase implements BinByteWriter {
   void _writeValueElement(
     BinValueElement element,
   ) {
-    _writeString(element.name);
-    _writeString(element.type);
+    _writeNameString(element.name);
+    _writeDataTypeString(element.type);
     _writeValue(element.type, element.value);
 
     _elements.add(element);
+  }
+
+  void _writeValueString(
+    String value,
+  ) {
+    final index = _strings.indexOf(value);
+
+    if (index == -1) {
+      writeUint16(0xffff, Endian.little);
+
+      final codeUnits = utf8.encode(value);
+
+      writeUint32(codeUnits.length, Endian.little);
+      writeBytes(codeUnits);
+
+      _strings.add(value);
+    } else {
+      writeUint16(index, Endian.little);
+    }
   }
 }
