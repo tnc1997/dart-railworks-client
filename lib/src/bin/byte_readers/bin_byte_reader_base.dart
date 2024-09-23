@@ -177,7 +177,7 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
   }
 
   BinClosingElement _readClosingElement() {
-    final name = _readString();
+    final name = _readNameString();
 
     final element = BinClosingElement(
       name: name,
@@ -188,9 +188,26 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
     return element;
   }
 
+  String _readDataTypeString() {
+    final index = readUint16(Endian.little);
+
+    if (index == 0xffff) {
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
+
+      final string = utf8.decode(codeUnits);
+
+      _strings.add(string);
+
+      return string;
+    } else {
+      return _strings[index];
+    }
+  }
+
   BinMatrixElement _readMatrixElement() {
-    final name = _readString();
-    final elementType = _readString();
+    final name = _readNameString();
+    final elementType = _readDataTypeString();
     final numElements = readByte();
 
     final elements = <Object>[];
@@ -210,6 +227,25 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
     return element;
   }
 
+  String _readNameString() {
+    final index = readUint16(Endian.little);
+
+    if (index == 0xffff) {
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
+
+      final string = utf8.decode(codeUnits).replaceAll('::', '-');
+
+      _strings.add(string);
+
+      return string.length == 0 ? 'e' : string;
+    } else {
+      final string = _strings[index];
+
+      return string.length == 0 ? 'e' : string;
+    }
+  }
+
   BinNullElement _readNullElement() {
     final element = const BinNullElement();
 
@@ -219,7 +255,7 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
   }
 
   BinOpeningElement _readOpeningElement() {
-    final name = _readString();
+    final name = _readNameString();
     final id = readUint32(Endian.little);
     final numChildren = readUint32(Endian.little);
 
@@ -235,7 +271,7 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
   }
 
   BinReferenceElement _readReferenceElement() {
-    final name = _readString();
+    final name = _readNameString();
     final value = readUint32(Endian.little);
 
     final element = BinReferenceElement(
@@ -246,23 +282,6 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
     _elements.add(element);
 
     return element;
-  }
-
-  String _readString() {
-    final index = readUint16(Endian.little);
-
-    if (index == 0xffff) {
-      final length = readUint32(Endian.little);
-      final codeUnits = readBytes(length);
-
-      final string = utf8.decode(codeUnits).replaceAll('::', '-');
-
-      _strings.add(string);
-
-      return string;
-    } else {
-      return _strings[index];
-    }
   }
 
   BinUndefinedElement _readUndefinedElement(
@@ -286,7 +305,7 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
       case RailWorksDataTypes.bool:
         return readBool();
       case RailWorksDataTypes.cDeltaString:
-        return _readString();
+        return _readValueString();
       case RailWorksDataTypes.sfloat32:
         return readFloat32(Endian.little);
       case RailWorksDataTypes.sint8:
@@ -310,9 +329,26 @@ mixin BinByteReaderBase on RailWorksByteReaderBase implements BinByteReader {
     }
   }
 
+  String _readValueString() {
+    final index = readUint16(Endian.little);
+
+    if (index == 0xffff) {
+      final length = readUint32(Endian.little);
+      final codeUnits = readBytes(length);
+
+      final string = utf8.decode(codeUnits);
+
+      _strings.add(string);
+
+      return string;
+    } else {
+      return _strings[index];
+    }
+  }
+
   BinValueElement _readValueElement() {
-    final name = _readString();
-    final type = _readString();
+    final name = _readNameString();
+    final type = _readDataTypeString();
     final value = _readValue(type);
 
     final element = BinValueElement(
