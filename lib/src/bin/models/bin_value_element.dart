@@ -98,7 +98,7 @@ class BinValueElement extends BinElement {
               Uint8List(8)
                 ..buffer
                     .asByteData()
-                    .setFloat64(0, value as double, Endian.little),
+                    .setFloat64(0, this.value as double, Endian.little),
             ),
           ),
         if (type == RailWorksDataTypes.sfloat32)
