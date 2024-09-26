@@ -60,9 +60,9 @@ class _BinEncoderSink implements Sink<XmlDocument> {
 
 extension on BinByteWriter {
   void writePrelude() {
-    const _prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
+    const prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
 
-    writeBytes(_prelude);
+    writeBytes(prelude);
   }
 
   void writeXmlElement(

@@ -67,15 +67,15 @@ class BinDecoder extends Converter<List<int>, XmlDocument> {
 
 extension on BinByteReader {
   List<int> readPrelude() {
-    const _prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
+    const prelude = [0x53, 0x45, 0x52, 0x5a, 0x00, 0x00, 0x01, 0x00];
 
-    for (var i = 0; i < _prelude.length; i++) {
-      if (readByte() != _prelude[i]) {
+    for (var i = 0; i < prelude.length; i++) {
+      if (readByte() != prelude[i]) {
         throw BinPreludeInvalidException(null, i);
       }
     }
 
-    return _prelude;
+    return prelude;
   }
 
   List<XmlNode> readXmlChildren() {
